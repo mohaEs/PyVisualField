@@ -40,7 +40,7 @@ lib_vf = importr('visualFields')
 Part I: Datasets 
 '''
 
-def vfctrSunyiu24d2():
+def data_vfctrSunyiu24d2():
     vfs_r = robjects.r['vfctrSunyiu24d2']
     with localconverter(ro.default_converter + pandas2ri.converter):
         vfs_p = ro.conversion.rpy2py(vfs_r) 
@@ -48,35 +48,35 @@ def vfctrSunyiu24d2():
     vfs_p.date = pd.to_datetime(vfs_p.date, unit='D', origin='1970-1-1')
     return vfs_p
 
-def vfctrSunyiu10d2():
+def data_vfctrSunyiu10d2():
     vfs_r = robjects.r['vfctrSunyiu10d2']
     with localconverter(ro.default_converter + pandas2ri.converter):
         vfs_p = ro.conversion.rpy2py(vfs_r) 
     vfs_p.date = pd.to_datetime(vfs_p.date, unit='D', origin='1970-1-1')
     return vfs_p
 
-def vfpwgRetest24d2():
+def data_vfpwgRetest24d2():
     vfs_r = robjects.r['vfpwgRetest24d2']
     with localconverter(ro.default_converter + pandas2ri.converter):
         vfs_p = ro.conversion.rpy2py(vfs_r) 
     vfs_p.date = pd.to_datetime(vfs_p.date, unit='D', origin='1970-1-1')
     return vfs_p
 
-def vfpwgSunyiu24d2():
+def data_vfpwgSunyiu24d2():
     vfs_r = robjects.r['vfpwgSunyiu24d2']
     with localconverter(ro.default_converter + pandas2ri.converter):
         vfs_p = ro.conversion.rpy2py(vfs_r) 
     vfs_p.date = pd.to_datetime(vfs_p.date, unit='D', origin='1970-1-1')
     return vfs_p
 
-def vfctrIowaPC26():
+def data_vfctrIowaPC26():
     vfs_r = robjects.r['vfctrIowaPC26']
     with localconverter(ro.default_converter + pandas2ri.converter):
         vfs_p = ro.conversion.rpy2py(vfs_r) 
     vfs_p.date = pd.to_datetime(vfs_p.date, unit='D', origin='1970-1-1')    
     return vfs_p
 
-def vfctrIowaPeri():
+def data_vfctrIowaPeri():
     vfs_r = robjects.r['vfctrIowaPeri']
     with localconverter(ro.default_converter + pandas2ri.converter):
         vfs_p = ro.conversion.rpy2py(vfs_r) 
