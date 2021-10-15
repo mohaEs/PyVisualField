@@ -27,6 +27,7 @@ from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 from rpy2.robjects.vectors import DataFrame, FloatVector, IntVector, StrVector, ListVector
 
+
 from PyVisualFields.core import FnRecurList
 from PyVisualFields.core import FnGetColumns
 
@@ -125,7 +126,7 @@ def plotProbabilities(values, title = 'Probability',
         lib_grdevices.dev_off()          
         
     
-    os.remove('tmp.csv') 
+    # os.remove('tmp.csv') 
     # os.remove('tmp.png')
     
     img = io.imread('tmp.png', as_gray=True)  
@@ -135,8 +136,6 @@ def plotProbabilities(values, title = 'Probability',
     os.remove('tmp.png')            
 
     
-
-
 ######################
 ###########
 ######################

@@ -14,6 +14,7 @@ from PyVisualFields import Rvfprogression
 import pandas 
 import numpy as np
 from matplotlib import pyplot as plt 
+import os
 
 import rpy2
 import rpy2.robjects as robjects
@@ -32,24 +33,23 @@ from rpy2.robjects.conversion import localconverter
 # import R's "utils" package
 #utils = importr('utils')
 
-# lib_vf = importr('visualFields')
-lib_vfprogression = importr('vfprogression')
+lib_vf = importr('visualFields')
+# lib_vfprogression = importr('vfprogression')
+# lib_grdevices = importr('grDevices')
 
 
 # Notice: for our df make sure to have date format as dateformat = "%Y-%m-%d"
-
-
 
 
 ################ Get samples
 ###### Get sample dataset as pandas dataframe 
 df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
 RvisualFields.vfdesc(df_VFs_py)
-# df_VFs_p = vfctrSunyiu24d2()
-# df_VFs_p = vfpwgSunyiu24d2()
-# df_VFs_p = vfctrSunyiu10d2()
-# df_VFs_p = vfctrIowaPC26()
-# df_VFs_p = vfctrIowaPeri()
+df_VFs_p = RvisualFields.data_vfctrSunyiu24d2()
+df_VFs_p = RvisualFields.data_vfpwgSunyiu24d2()
+df_VFs_p = RvisualFields.data_vfctrSunyiu10d2()
+df_VFs_p = RvisualFields.data_vfctrIowaPC26()
+df_VFs_p = RvisualFields.data_vfctrIowaPeri()
 
 df_VFs_py = Rvfprogression.data_vfseries()
 df_VFs_py = Rvfprogression.data_vfi()
@@ -62,17 +62,17 @@ df_VFs_py = Rvfprogression.data_schell2014()
 
 ################################
 # Get all normalized computations
-td, tdp, gi, gip, pd, pdp, gh = RvisualFields.getallvalues(df_VFs_py) 
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh = RvisualFields.getallvalues(df_VFs_py) 
 
 # another way individually:
-td = RvisualFields.gettd(df_VFs_py) # get TD values
-gi = RvisualFields.getgl(df_VFs_py) # get global indices
-tdp = RvisualFields.gettdp(td) # get TD probability values
-pd = RvisualFields.getpd(td) # get PD values
-gh = RvisualFields.getgh(td) # get the general height
-pdp = RvisualFields.getpdp(pd) # get PD probability values
-gip = RvisualFields.getglp(gi) # get global indices probability values
-
+df_td = RvisualFields.gettd(df_VFs_py) # get TD values
+df_gi = RvisualFields.getgl(df_VFs_py) # get global indices
+df_tdp = RvisualFields.gettdp(df_td) # get TD probability values
+df_pd = RvisualFields.getpd(df_td) # get PD values
+gh = RvisualFields.getgh(df_td) # get the general height
+df_pdp = RvisualFields.getpdp(df_pd) # get PD probability values
+df_gip = RvisualFields.getglp(df_gi) # get global indices probability values
 
 
 ######
@@ -84,29 +84,51 @@ df_VFs_r= robjects.r['vfctrSunyiu24d2']
 
 
 
-######
+##################
 ###### plots 
 
-# 
-# vector=rpyn.ri2numpy(vector_R)
-# R_float_vec = rpyn.numpy2rpy(td_single)
+#################
 
+
+
+
+td = np.random.randint(low=-35, high=5, size=(54,))
+Rvfprogression.plotValues(td, title= 'Total Deviation',
+                                 save=True, filename='td', fmt='png')
+tdp = np.float16(np.random.rand(54)/10)
+Rvfprogression.plotProbabilities(tdp, title= 'Total Deviation Probablity',
+                                 save=True, filename='tdp', fmt='png')
+
+# more realistic example:
 ind_td_start=df_VFs_py.columns.get_loc("l1")
 ind_td_end=df_VFs_py.columns.get_loc("l54") 
 
-td = td.fillna(0)
-tdp = tdp.fillna(0)
+df_td = df_td.fillna(0)
+df_tdp = df_tdp.fillna(0)
 
-
-td_values_single = td.iloc[0,ind_td_start:ind_td_end+1].to_numpy().astype(np.int8())
-Rvfprogression.plotValues(td_values_single, title= 'Total Deviation',
-                                 save=True, filename='td', fmt='png')
-
-tdp_values_single = tdp.iloc[0,ind_td_start:ind_td_end+1].to_numpy().astype(np.float16())
-Rvfprogression.plotProbabilities(tdp_values_single, title= 'Total Deviation Probablity',
+td = df_td.iloc[0,ind_td_start:ind_td_end+1].to_numpy().astype(np.int8())
+print(td.shape)
+print(type(td.shape))
+tdp = df_tdp.iloc[0,ind_td_start:ind_td_end+1].to_numpy().astype(np.float16())
+Rvfprogression.plotProbabilities(tdp, title= 'Total Deviation Probablity',
                                  save=True, filename='tdp', fmt='png')
 
 
+#################
+
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+vf = df_VFs_py.iloc[[0]] 
+
+RvisualFields.vfplot(vf, type='s', save=True, filename='file', fmt='png')
+
+##################
+###### report generation
+
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+vf = df_VFs_py.iloc[[0]] 
+RvisualFields.vfsfa(vf, 'report.pdf')
+
+# TODO: vfspa
 
 ######
 ###### Analysis
@@ -129,6 +151,44 @@ print(results)
 
 
 
+# linear regression with global indices
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
+df_gi = RvisualFields.getgl(df_VFs_py) # get global indices
+res = RvisualFields.glr(df_gi) #linear regression with global indices
+print(res.keys())
+intercept = res['int']
+slope = res['sl']
+se = res['se']
+tval = res['tval']
+pval = res['pval']
+
+
+# pointwise linear regression (PLR) with TD values
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
+res = RvisualFields.plr(df_VFs_py) # pointwise linear regression (PLR) with TD values
+print(res.keys())
+intercept = res['int']
+slope = res['sl']
+se = res['se']
+tval = res['tval']
+pval = res['pval']
+print(slope.keys())
+arrObejct = np.array(list(slope.items()))
+slope_numpy = np.float16(arrObejct[:,1])
+print(slope_numpy)
+
+
+# Permutation of PLR with TD values
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
+res = RvisualFields.poplr(df_VFs_py) # Permutation of PLR with TD values
+print(res.keys())
+
+
+# TODO: pred is missed in conversion (not critical)
+
 ################ Get the locmaps information
 ###### 
 LocMaps=RvisualFields.locmaps()
@@ -139,9 +199,9 @@ Y = LocMaps['p24d2']['coord']['y']
 ################ Get the normalization values
 ###### 
 NormValues=RvisualFields.normvals()
+# TODO
 
+################ calculate new normalization values and set it as default
+###### 
 
-# robjects.r('''
-#            library(visualFields)
-#            print(typeof(vfctrSunyiu24d2))
-#            ''')
+# TODO

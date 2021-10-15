@@ -12,7 +12,8 @@ this file contains wrappers for R package: visualFields
 """
 
 
-from rpy2.robjects.vectors import DataFrame, FloatVector, IntVector, StrVector, ListVector
+from rpy2.robjects.vectors import DataFrame, FloatVector, IntVector, StrVector, ListVector, Matrix
+#from rpy2_Matrix import Matrix
 import numpy
 from collections import OrderedDict
 
@@ -96,7 +97,7 @@ def FnGetColumns(length):
         
 def FnRecurList(data):
     rDictTypes = [ DataFrame,ListVector]
-    rArrayTypes = [FloatVector,IntVector]
+    rArrayTypes = [FloatVector,IntVector, Matrix]
     rListTypes=[StrVector]
     if type(data) in rDictTypes:
         return OrderedDict(zip(data.names, [FnRecurList(elt) for elt in data]))

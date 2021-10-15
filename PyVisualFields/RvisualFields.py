@@ -17,6 +17,12 @@ import sys
 import rpy2
 import rpy2.robjects as robjects
 import os
+from skimage import io as skio
+import matplotlib.pyplot as plt
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from PyPDF2 import PdfFileWriter, PdfFileReader
 
 from rpy2.robjects.packages import importr
 import rpy2.robjects as ro
@@ -34,6 +40,7 @@ lib_base = importr('base')
 lib_utils = importr('utils')
 
 lib_vf = importr('visualFields')
+lib_grdevices = importr('grDevices')
 
 
 '''  ###########################
@@ -91,12 +98,89 @@ def data_vfctrIowaPeri():
 part II: plots
 '''
 
+def vfplot(df_vf_py, type='s', save=False, filename='tmp', fmt='pdf'):
+        
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        df_vf_r = ro.conversion.py2rpy(df_vf_py)    
+            
+    lib_vf.vfwrite(df_vf_r,'tmp0.csv', dateformat = "%Y-%m-%d")
+    df_vf_r = lib_vf.vfread('tmp0.csv')
+    os.remove('tmp0.csv')   
+    
+    lib_grdevices.png(file='tmp.png', width=512, height=512)    
+    # plotting code here 
+    lib_vf.vfplot(df_vf_r, type=type)
+    lib_grdevices.dev_off()
+    
+    if save==True:
+        
+        if fmt=='pdf':
+            lib_grdevices.pdf(file=filename+'.'+fmt) 
+        elif fmt=='png':
+            lib_grdevices.png(file=filename+'.'+fmt, width=512, height=512)        
+        elif fmt=='svg':
+            lib_grdevices.svg(file=filename+'.'+fmt) 
+        else:
+            raise NameError('format should be one of: pdf, svg, png')
+            
+        # plotting code here 
+        lib_vf.vfplot(df_vf_r, type=type)
+        lib_grdevices.dev_off()          
+            
+    img = skio.imread('tmp.png')  
+    plt.figure()
+    if type=='s':
+        plt.imshow(img, cmap='gray')# , vmin=0, vmax=255
+    else:
+        plt.imshow(img)# , vmin=0, vmax=255
+    plt.axis('off')     
+    os.remove('tmp.png')            
 
 
 
 
-
-
+def vfsfa(df_vf_py, filename='report.pdf'):
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        df_vf_r = ro.conversion.py2rpy(df_vf_py)   
+    lib_vf.vfwrite(df_vf_r,'tmp0.csv', dateformat = "%Y-%m-%d")
+    df_vf_r = lib_vf.vfread('tmp0.csv')
+    os.remove('tmp0.csv')     
+    
+    # validity = bool(lib_vf.vfisvalid(df_vf_r))
+    # print(validity)
+    # if validity==False:
+    #     raise NameError('format of dataframe is not proper for visualFields package! check the documentations and sample data.')
+        
+    
+    lib_grdevices.png(file='tmp.png', width=512, height=512)       
+    lib_vf.vfsfa(df_vf_r, file=filename)
+    lib_grdevices.dev_off()
+    os.remove('tmp.png')     
+    
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.drawString(30, 45, "Wrapped by PyVisualFields from:")
+    can.save()
+    
+    #move to the beginning of the StringIO buffer
+    packet.seek(0)
+    
+    # create a new PDF with Reportlab
+    new_pdf = PdfFileReader(packet)
+    # read your existing PDF
+    existing_pdf = PdfFileReader(open(filename, "rb"))
+    output = PdfFileWriter()
+    # add the "watermark" (which is the new pdf) on the existing page
+    page = existing_pdf.getPage(0)
+    page.mergePage(new_pdf.getPage(0))
+    output.addPage(page)
+    # finally, write "output" to a real file
+    outputStream = open(filename, "wb")
+    output.write(outputStream)
+    outputStream.close()
+    
+    
+    
 
 '''  ###########################
 part III: computations
@@ -260,6 +344,9 @@ def getglp(dataframe_GIs_py):
 Part IV: values and helpers
 '''
 
+# def vfisvalid():
+    
+
 def locmaps():
     locs = robjects.r['locmaps']
     locs = FnRecurList(locs)
@@ -280,4 +367,39 @@ def vfdesc(dataframe_VFs_py):
     # print("Hello from a function") 
     print(dataframe_VFs_py.describe())    
     
-    
+
+
+
+'''  ###########################
+Part IV: Analyis
+'''
+def glr(df_gi_py):
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        df_vf_r = ro.conversion.py2rpy(df_gi_py)    
+    lib_vf.vfwrite(df_vf_r,'tmp0.csv', dateformat = "%Y-%m-%d")
+    df_vf_r = lib_vf.vfread('tmp0.csv')
+    os.remove('tmp0.csv')  
+    res=lib_vf.glr(df_vf_r)
+    res_py=FnRecurList(res)
+    return(res_py)
+
+def plr(df_VFs_py):
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        df_vf_r = ro.conversion.py2rpy(df_VFs_py)    
+    lib_vf.vfwrite(df_vf_r,'tmp0.csv', dateformat = "%Y-%m-%d")
+    df_vf_r = lib_vf.vfread('tmp0.csv')
+    os.remove('tmp0.csv')  
+    res=lib_vf.plr(df_vf_r)
+    res_py = FnRecurList(res)
+    return(res_py)
+
+
+def poplr(df_VFs_py):
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        df_vf_r = ro.conversion.py2rpy(df_VFs_py)    
+    lib_vf.vfwrite(df_vf_r,'tmp0.csv', dateformat = "%Y-%m-%d")
+    df_vf_r = lib_vf.vfread('tmp0.csv')
+    os.remove('tmp0.csv')  
+    res=lib_vf.poplr(df_vf_r)
+    res_py = FnRecurList(res)
+    return(res_py)
