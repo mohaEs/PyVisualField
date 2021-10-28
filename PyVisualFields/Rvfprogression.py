@@ -96,7 +96,7 @@ def plotProbabilities(values, title = 'Probability',
         df.loc[0, columns[i]] = values[i]      
     df.to_csv("tmp.csv", index=False) 
     
-    lib_grdevices.png(file='tmp.png', width=480, height=480)    
+    lib_grdevices.png(file='tmp.png', width=350, height=350)    
     # plotting code here 
     robjects.r('''
     df <- read.csv(file = "tmp.csv")
@@ -111,7 +111,7 @@ def plotProbabilities(values, title = 'Probability',
         if fmt=='pdf':
             lib_grdevices.pdf(file=filename+'.'+fmt) 
         elif fmt=='png':
-            lib_grdevices.png(file=filename+'.'+fmt, width=480, height=480)        
+            lib_grdevices.png(file=filename+'.'+fmt, width=350, height=350)        
         elif fmt=='svg':
             lib_grdevices.svg(file=filename+'.'+fmt) 
         else:
@@ -126,12 +126,12 @@ def plotProbabilities(values, title = 'Probability',
         lib_grdevices.dev_off()          
         
     
-    # os.remove('tmp.csv') 
-    # os.remove('tmp.png')
+    os.remove('tmp.csv') 
+    
     
     img = io.imread('tmp.png', as_gray=True)  
-    plt.figure()
-    plt.imshow(img, cmap='gray')# , vmin=0, vmax=255
+    plt.figure(figsize=(8, 6), dpi=80)
+    plt.imshow(img, cmap='gray', interpolation='none', resample=False)# , vmin=0, vmax=255
     plt.axis('off')     
     os.remove('tmp.png')            
 
@@ -151,7 +151,7 @@ def plotValues(values, title = 'Deviation',
         df.loc[0, columns[i]] = values[i]      
     df.to_csv("tmp.csv", index=False) 
     
-    lib_grdevices.png(file='tmp.png', width=256, height=256)    
+    lib_grdevices.png(file='tmp.png', width=300, height=300)    
     # plotting code here 
     robjects.r('''
     df <- read.csv(file = "tmp.csv")
@@ -166,7 +166,7 @@ def plotValues(values, title = 'Deviation',
         if fmt=='pdf':
             lib_grdevices.pdf(file=filename+'.'+fmt) 
         elif fmt=='png':
-            lib_grdevices.png(file=filename+'.'+fmt, width=256, height=256)        
+            lib_grdevices.png(file=filename+'.'+fmt, width=300, height=300)        
         elif fmt=='svg':
             lib_grdevices.svg(file=filename+'.'+fmt) 
         else:
@@ -182,11 +182,11 @@ def plotValues(values, title = 'Deviation',
         
     
     os.remove('tmp.csv') 
-    # os.remove('tmp.png')
+    
     
     img = io.imread('tmp.png', as_gray=True)  
-    plt.figure()
-    plt.imshow(img, cmap='gray')# , vmin=0, vmax=255
+    plt.figure(figsize=(8, 6), dpi=80)
+    plt.imshow(img, cmap='gray', interpolation='none', resample=False)# , vmin=0, vmax=255
     plt.axis('off')     
     os.remove('tmp.png')            
 

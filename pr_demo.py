@@ -33,7 +33,7 @@ from rpy2.robjects.conversion import localconverter
 # import R's "utils" package
 #utils = importr('utils')
 
-lib_vf = importr('visualFields')
+# lib_vf = importr('visualFields')
 # lib_vfprogression = importr('vfprogression')
 # lib_grdevices = importr('grDevices')
 
@@ -130,7 +130,7 @@ df_VFs_r= robjects.r['vfctrSunyiu24d2']
 ##################
 ###### plots 
 
-#################
+######
 
 
 
@@ -140,6 +140,10 @@ Rvfprogression.plotValues(td, title= 'Total Deviation',
                                  save=True, filename='td', fmt='png')
 
 # more realistic example:
+
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh = RvisualFields.getallvalues(df_VFs_py)     
+    
 ind_td_start=df_VFs_py.columns.get_loc("l1")
 ind_td_end=df_VFs_py.columns.get_loc("l54") 
 
@@ -151,15 +155,46 @@ print(td.shape)
 print(type(td.shape))
 tdp = df_tdp.iloc[0, ind_td_start:ind_td_end+1].to_numpy().astype(np.float16())
 Rvfprogression.plotProbabilities(tdp, title= 'Total Deviation Probablity',
-                                 save=True, filename='tdp', fmt='png')
+                                 save=True, filename='tdp', fmt='png')  
 # make sure to use plt.close('all'), if you are using it in a loop
 
-#################
+########
 
 df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
 vf = df_VFs_py.iloc[[0]] 
 
 RvisualFields.vfplot(vf, type='s', save=True, filename='file', fmt='png')
+RvisualFields.vfplot_s(vf, save=True, filename='file', fmt='png')
+RvisualFields.vfplot_td(vf, save=True, filename='file', fmt='png')
+RvisualFields.vfplot_pd(vf, save=True, filename='file', fmt='png')
+RvisualFields.vfplot_tds(vf, save=True, filename='file', fmt='png')
+RvisualFields.vfplot_pds(vf, save=True, filename='file', fmt='png')
+
+
+df_VFs_py = RvisualFields.data_vfpwgSunyiu24d2()
+filter1 = df_VFs_py.id=='sample1'
+filter2 = df_VFs_py.eye=='OD'
+df_vf_1 = df_VFs_py.loc[ filter1 & filter2]
+RvisualFields.vfplotsparklines(df_vf_1, type='s', save=True, filename='file', fmt='png')
+RvisualFields.vfplotsparklines_s(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vfplotsparklines_td(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vfplotsparklines_pd(df_vf_1, save=True, filename='file', fmt='png')
+
+RvisualFields.vfplotplr(df_vf_1, type='s', save=True, filename='file', fmt='png')
+RvisualFields.vfplotplr_s(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vfplotplr_td(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vfplotplr_pd(df_vf_1, save=True, filename='file', fmt='png')
+
+RvisualFields.vflegoplot(df_vf_1, type='s', save=True, filename='file', fmt='png')
+RvisualFields.vflegoplot_s(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vflegoplot_td(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vflegoplot_pd(df_vf_1, save=True, filename='file', fmt='png')
+
+
+
+# TODO: add colorbar of probablies
+
+
 
 ##################
 ###### report generation
@@ -188,7 +223,6 @@ print(results)
 df_VFs_py = Rvfprogression.data_schell2014()
 results = Rvfprogression.progression_schell2014(df_VFs_py)
 print(results)
-
 
 
 # linear regression with global indices
@@ -228,6 +262,7 @@ print(res.keys())
 
 
 # TODO: pred is missed in conversion (not critical)
+# TODO: show an progression example
 
 ################ Get the locmaps information
 ###### 
@@ -245,3 +280,10 @@ NormValues=RvisualFields.normvals()
 ###### 
 
 # TODO
+
+# TODO: read load pdf xml dcm files
+ 
+################ new R package progression
+######
+# TODO
+# https://cran.r-project.org/web/packages/spCP/index.html

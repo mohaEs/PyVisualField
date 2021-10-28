@@ -112,3 +112,4 @@ def FnRecurList(data):
             # print('Could not proceed, type {} is not defined'.format(type(data)))
         else:
             return data # We reached the end of recursion
+        
