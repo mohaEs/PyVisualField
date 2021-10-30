@@ -164,13 +164,17 @@ df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
 vf = df_VFs_py.iloc[[0]] 
 
 RvisualFields.vfplot(vf, type='s', save=True, filename='file', fmt='png')
-RvisualFields.vfplot_s(vf, save=True, filename='file', fmt='png')
+RvisualFields.vfplot_s(vf, save=True, filename='file', fmt='svg')
 RvisualFields.vfplot_td(vf, save=True, filename='file', fmt='png')
-RvisualFields.vfplot_pd(vf, save=True, filename='file', fmt='png')
+RvisualFields.vfplot_pd(vf, save=True, filename='file', fmt='pdf')
 RvisualFields.vfplot_tds(vf, save=True, filename='file', fmt='png')
 RvisualFields.vfplot_pds(vf, save=True, filename='file', fmt='png')
 
 
+# show colormap of probablies
+RvisualFields.plotProbColormap(save=True, filename='file', fmt='png') # pdf, png
+
+# 
 df_VFs_py = RvisualFields.data_vfpwgSunyiu24d2()
 filter1 = df_VFs_py.id=='sample1'
 filter2 = df_VFs_py.eye=='OD'
@@ -192,14 +196,11 @@ RvisualFields.vflegoplot_pd(df_vf_1, save=True, filename='file', fmt='png')
 
 
 
-# TODO: add colorbar of probablies
-
-
 
 ##################
 ###### report generation
 
-df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2() 
 vf = df_VFs_py.iloc[[0]] 
 RvisualFields.vfsfa(vf, 'report.pdf')
 

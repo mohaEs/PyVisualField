@@ -28,8 +28,8 @@ from rpy2.robjects.conversion import localconverter
 from rpy2.robjects.vectors import DataFrame, FloatVector, IntVector, StrVector, ListVector
 
 
-from PyVisualFields.core import FnRecurList
-from PyVisualFields.core import FnGetColumns
+from PyVisualFields.utils import FnRecurList
+from PyVisualFields.utils import FnGetColumns
 
 
 

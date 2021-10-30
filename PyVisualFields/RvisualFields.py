@@ -23,7 +23,9 @@ import matplotlib.pyplot as plt
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+
 from PyPDF2 import PdfFileWriter, PdfFileReader
+import fitz
 
 from rpy2.robjects.packages import importr
 import rpy2.robjects as ro
@@ -31,7 +33,7 @@ import pandas as pd
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 
-from PyVisualFields.core import FnRecurList
+from PyVisualFields.utils import FnRecurList
 
 
 # import R's "base" package
@@ -111,6 +113,122 @@ def data_vfctrIowaPeri():
 '''  ###########################
 part II: plots
 '''
+
+def plotProbColormap(save=False, filename='tmp', fmt='pdf'):
+
+    lib_grdevices.pdf(file='tmp.pdf')    
+    # plotting code here 
+    robjects.r('''
+    library(visualFields)
+ 
+    # getgpar()$colmap$map$probs
+    # getgpar()$colmap$map$cols
+    # getgpar()$progcolmap$b$map$probs
+    # getgpar()$progcolmap$b$map$cols
+    
+    drawcolscalesfa <- function(probs, cols, ...) {
+      if(!(0 %in% probs)) {
+        probs <- c(0, probs)
+        cols  <- c("#000000", cols)
+      }
+      colrgb <- col2rgb(cols) / 255
+      txtcol <- rep("#000000", length(probs))
+      txtcol[(0.2126 * colrgb[1,]
+              + 0.7152 * colrgb[2,]
+              + 0.0722 * colrgb[3,]) < 0.4] <- "#FFFFFF"
+      pol <- NULL
+      y <- c(0.5, 0.5, -0.5, -0.5)
+      xini <- (26 - length(probs)) / 2
+      xend <- 25 - xini
+      pol[1] <- list(data.frame(x = c(xini, xini + 1, xini + 1, xini), y = y))
+      for(i in 2:length(probs)) {
+        xl <- pol[[i-1]]$x[2]
+        xu <- xl + 1
+        pol[i] <- list(data.frame(x = c(xl, xu, xu, xl), y = y))
+      }
+      x <- xini + 1:length(probs)
+      y <- rep(0, length(probs))
+      defpar <- par(no.readonly = TRUE) # read default par
+      on.exit(par(defpar))              # reset default par on exit, even if the code crashes
+      par(mar = c(0, 0, 0, 0), ...)
+      # dev.new(width=1, height=1)
+      plot(x, y, typ = "n", ann = FALSE, axes = FALSE,
+           xlim = c(1, 25), ylim = c(-0.25, 0.25), asp = 1)
+      for(i in 1:length(x)) polygon(pol[[i]], border = NA, col = cols[i])
+      text(x - diff(x)[1] / 2, y, probs, col = txtcol)
+    }
+    
+    drawcolscalesfa(getgpar()$colmap$map$probs, getgpar()$colmap$map$cols, ps = 6)
+    ''')
+    lib_grdevices.dev_off()
+    
+    with open("tmp.pdf", "rb") as in_f:
+        input1 = PdfFileReader(in_f)
+        output = PdfFileWriter()
+    
+        numPages = input1.getNumPages()
+        # print("document has %s pages."% numPages)    
+        # for i in range(numPages):
+        #     page = input1.getPage(i)
+        #     # print(page.mediaBox.getUpperRight_x(), page.mediaBox.getUpperRight_y())
+        #     page.cropBox.lowerLeft = (155, 243)
+        #     page.cropBox.upperLeft = (155, 260)
+        #     page.cropBox.upperRight = (349, 243)
+        #     page.cropBox.lowerRight = (349, 260)            
+        #     output.addPage(page)
+      
+        page = input1.getPage(0)
+        page.scaleBy(3)
+        page.cropBox.lowerLeft = (465, 729)
+        page.cropBox.upperLeft = (465, 780)
+        page.cropBox.upperRight = (1047, 729)
+        page.cropBox.lowerRight = (1047, 780)        
+        # page.cropBox.lowerLeft = (155, 243)
+        # page.cropBox.upperLeft = (155, 260)
+        # page.cropBox.upperRight = (349, 243)
+        # page.cropBox.lowerRight = (349, 260)
+        output.addPage(page)
+        
+        # with open("out.pdf", "wb") as out_f:
+        #     output.write(out_f)
+            
+        outputStream = open('out.pdf','wb') 
+        output.write(outputStream) 
+        outputStream.close() 
+    
+    pdffile = "out.pdf"
+    doc = fitz.open(pdffile)
+    page = doc.load_page(0)  # number of page
+    pix = page.get_pixmap()
+    output_fname = "outfile.png"
+    pix.save(output_fname)
+    doc.close()
+    
+    im = plt.imread(output_fname)
+    plt.imshow(im)
+    plt.axis('off')     
+    
+  
+    if save==True:     
+        
+        file_exists = os.path.exists(filename+'.'+ fmt)
+        if file_exists:
+            os.remove(filename+'.'+ fmt)
+        
+        if fmt=='pdf':
+            os.rename('out.pdf', filename+'.'+ fmt )            
+        elif fmt=='png':
+            skio.imsave( filename+'.'+ fmt, im)                 
+        else:
+            raise NameError('format should be one of: pdf, png')
+            
+    os.remove(output_fname)    
+    os.remove("tmp.pdf")
+    if save==False or fmt=='png':
+        os.remove(pdffile)
+    
+    
+
 
 def vfplot(df_vf_py, type='s', save=False, filename='tmp', fmt='pdf'):
         
