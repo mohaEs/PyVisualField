@@ -673,39 +673,171 @@ def vfdesc(dataframe_VFs_py):
 '''  ###########################
 Part IV: Analyis
 '''
-def glr(df_gi_py):
+def glr(df_gi_py, type = "md", testSlope = 0):
     # with localconverter(ro.default_converter + pandas2ri.converter):
     #     df_vf_r = ro.conversion.py2rpy(df_gi_py)    
     # lib_vf.vfwrite(df_vf_r,'tmp0.csv', dateformat = "%Y-%m-%d")
     # df_vf_r = lib_vf.vfread('tmp0.csv')
     # os.remove('tmp0.csv')  
+    
+    '''
+    performs global linear regression analysis
+    
+    # type: 
+        ‘ms‘: mean sensitivity
+        ‘ss‘: standard deviation of sensitivities
+        ‘md‘: mean deviation of total deviation values
+        ‘sd‘: standard deviation of total deviation values
+        ‘pmd‘: pattern mean deviation
+        ‘psd‘: pattern standard deviation
+        ‘vfi‘: VFI    
+        ‘gh‘: general height 
+        
+    # testSlope:
+        slope, or slopes, to test as null hypothesis. Default is 0.
+        
+        
+    return values:
+        
+        - id patient ID
+        – eye patient eye
+        – type type of data analysis. . 
+        – testSlope slope for glr or list of slopes for plr to test as null hypotheses
+        – nvisits number of visits
+        – years years from baseline. Used for the pointwise linear regression analysis
+        – data data analyzed. 
+        – pred predicted values. Each column is a location of the visual field used for the analysis.
+        Each row is a visit (as many as years)
+        – sl slopes estimated at each location for pointwise (simple) linear regression
+        – int intercept estimated at each location for pointwise (simple) linear regression
+        – tval t-values obtained for the left-tailed-t-tests for the slopes obtained in the pointwise
+        (simple) linear regression at each location
+        – pval p-values obtained for the left-tailed t-tests for the slopes obtained
+    '''
+    
     df_vf_r = FnWriteLoadTmpCSV(df_gi_py) 
     
-    res=lib_vf.glr(df_vf_r)
+    res=lib_vf.glr(df_vf_r, type = type, testSlope = testSlope)
     res_py=FnRecurList(res)
     return(res_py)
 
-def plr(df_VFs_py):
+def plr(df_VFs_py, type = "td", testSlope = 0):
     # with localconverter(ro.default_converter + pandas2ri.converter):
     #     df_vf_r = ro.conversion.py2rpy(df_VFs_py)    
     # lib_vf.vfwrite(df_vf_r,'tmp0.csv', dateformat = "%Y-%m-%d")
     # df_vf_r = lib_vf.vfread('tmp0.csv')
     # os.remove('tmp0.csv')  
     
+    '''
+    performs pointwise linear regression (PLR) analysis
+    
+    # type: 
+        ‘s‘: sensitivities
+        ‘td‘: total deviation values
+        ‘pd‘: pattern deviation values
+        
+    # testSlope:
+        slope, or slopes, to test as null hypothesis. Default is 0.
+        if a single value, then the same null hypothesis is used for all locations.
+        If a vector of values, then (for plr
+        and poplr) each location of the visual field will have a different null hypothesis.
+        The length of testSlope must be 1 or equal to the number of locations to be used
+        in the PLR or PoPLR analysis
+        
+        
+    return values:
+        
+        - id patient ID
+        – eye patient eye
+        – type type of data analysis. . 
+        – testSlope slope for glr or list of slopes for plr to test as null hypotheses
+        – nvisits number of visits
+        – years years from baseline. Used for the pointwise linear regression analysis
+        – data data analyzed. 
+        – pred predicted values. Each column is a location of the visual field used for the analysis.
+        Each row is a visit (as many as years)
+        – sl slopes estimated at each location for pointwise (simple) linear regression
+        – int intercept estimated at each location for pointwise (simple) linear regression
+        – tval t-values obtained for the left-tailed-t-tests for the slopes obtained in the pointwise
+        (simple) linear regression at each location
+        – pval p-values obtained for the left-tailed t-tests for the slopes obtained
+    '''
+    
+    
     df_vf_r = FnWriteLoadTmpCSV(df_VFs_py) 
-    res=lib_vf.plr(df_vf_r)
+    res=lib_vf.plr(df_vf_r, type = type, testSlope = testSlope)
     res_py = FnRecurList(res)
     return(res_py)
 
 
-def poplr(df_VFs_py):
+def poplr(df_VFs_py, type = "td", testSlope = 0, nperm = 'default', trunc = 1):
     # with localconverter(ro.default_converter + pandas2ri.converter):
     #     df_vf_r = ro.conversion.py2rpy(df_VFs_py)    
     # lib_vf.vfwrite(df_vf_r,'tmp0.csv', dateformat = "%Y-%m-%d")
     # df_vf_r = lib_vf.vfread('tmp0.csv')
     # os.remove('tmp0.csv')  
     
-    df_vf_r = FnWriteLoadTmpCSV(df_VFs_py) 
-    res=lib_vf.poplr(df_vf_r)
+    '''
+    performs PoPLR analysis as in O’Leary et al:
+        N. O’Leary, B. C. Chauhan, and P. H. Artes. Visual field progression in glaucoma: estimating
+        the overall significance of deterioration with permutation analyses of pointwise linear regression
+        (PoPLR). Investigative Ophthalmology and Visual Science, 53, 2012
+
+    # type: 
+        ‘s‘: sensitivities
+        ‘td‘: total deviation values
+        ‘pd‘: pattern deviation values
+        
+    # testSlope:
+        slope, or slopes, to test as null hypothesis. Default is 0.
+        if a single value, then the same null hypothesis is used for all locations.
+        If a vector of values, then (for plr
+        and poplr) each location of the visual field will have a different null hypothesis.
+        The length of testSlope must be 1 or equal to the number of locations to be used
+        in the PLR or PoPLR analysis
+        
+    # nperm:
+        number of permutations. If the number of visits is 7 or less, then nperm =factorial(nrow(vf)).
+    # trunc:        
+        truncation value for the Truncated Product Method (see reference)
+        
+        
+    return values:
+        
+        - id patient ID
+        – eye patient eye
+        – type type of data analysis. . 
+        – testSlope slope for glr or list of slopes for plr to test as null hypotheses
+        – nvisits number of visits
+        – years years from baseline. Used for the pointwise linear regression analysis
+        – data data analyzed. 
+        – pred predicted values. Each column is a location of the visual field used for the analysis.
+        Each row is a visit (as many as years)
+        – sl slopes estimated at each location for pointwise (simple) linear regression
+        – int intercept estimated at each location for pointwise (simple) linear regression
+        – tval t-values obtained for the left-tailed-t-tests for the slopes obtained in the pointwise
+        (simple) linear regression at each location
+        – pval p-values obtained for the left-tailed t-tests for the slopes obtained
+        
+        – csl the modifed Fisher’s S-statistic for the left-tailed permutation test
+        – cslp the p-value for the left-tailed permutation test
+        – csr the modifed Fisher’s S-statistic for the right-tailed permutation test
+        – csrp the p-value for the right-tailed permutation test
+        – pstats a list with the poinwise slopes (‘sl‘), intercepts (‘int‘), standard errors (‘se‘),
+        and p-values (‘pval‘) obtained for the series at each location analyzed and for all nperm
+        permutations (in ‘permutations‘)
+        – cstats a list with all combined stats:
+        * csl,csr the combined Fisher S-statistics for the left- and right-tailed permutation
+        tests respectively
+        * cslp,csrp the corresponding p-values for the permutation tests
+        * cslall,csrall the combined Fisher S-statistics for all permutations
+        
+    '''
+    
+    df_vf_r = FnWriteLoadTmpCSV(df_VFs_py ) 
+    if nperm == 'default':
+        res=lib_vf.poplr(df_vf_r, type = type, testSlope = testSlope, trunc=trunc)
+    else:          
+        res=lib_vf.poplr(df_vf_r, type = type, testSlope = testSlope, nperm=nperm, trunc=trunc)
     res_py = FnRecurList(res)
     return(res_py)

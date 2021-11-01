@@ -15,6 +15,7 @@ import pandas
 import numpy as np
 from matplotlib import pyplot as plt 
 import os
+import math
 
 import rpy2
 import rpy2.robjects as robjects
@@ -206,9 +207,10 @@ RvisualFields.vfsfa(vf, 'report.pdf')
 
 # TODO: vfspa
 
-######
+###########################################
 ###### Analysis
 
+######
 df_VFs_py = Rvfprogression.data_cigts()
 results = Rvfprogression.progression_cigts(df_VFs_py)
 print(results)
@@ -225,45 +227,63 @@ df_VFs_py = Rvfprogression.data_schell2014()
 results = Rvfprogression.progression_schell2014(df_VFs_py)
 print(results)
 
-
+#####################################
 # linear regression with global indices
 df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
 df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
 df_gi = RvisualFields.getgl(df_VFs_py) # get global indices
-res = RvisualFields.glr(df_gi) #linear regression with global indices
+res = RvisualFields.glr(df_gi, type = "md", testSlope = 0) #linear regression with global indices
 print(res.keys())
-intercept = res['int']
-slope = res['sl']
-se = res['se']
-tval = res['tval']
-pval = res['pval']
+intercept =  float(res['int'])
+slope = float(res['sl'])
+se =  float(res['se'])
+tval = float(res['tval'])
+pval = float(res['pval'])
+years = res['years']
 
 
+x = np.linspace(0, 1, num=50)
+y = df_gi['tmd'].values
+# Create a list of values in the best fit line
+abline_values = [slope * i + intercept for i in x]
+plt.plot(x, abline_values, '--')
+plt.scatter(years, y)
+plt.xlabel('years')
+plt.ylabel('tmd')
+
+
+#####################################
 # pointwise linear regression (PLR) with TD values
 df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
 df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
-res = RvisualFields.plr(df_VFs_py) # pointwise linear regression (PLR) with TD values
+res = RvisualFields.plr(df_VFs_py, type='s', testSlope=0) # pointwise linear regression (PLR) with TD values
 print(res.keys())
 intercept = res['int']
 slope = res['sl']
-se = res['se']
+standarderror = res['se']
 tval = res['tval']
 pval = res['pval']
 print(slope.keys())
-arrObejct = np.array(list(slope.items()))
-slope_numpy = np.float16(arrObejct[:,1])
-print(slope_numpy)
+arrObejct = np.asarray(list(slope.items()))
+slopes_numpy = np.asarray(arrObejct[:,1], dtype=float) 
+print(slopes_numpy)
+arrObejct = np.asarray(list(intercept.items()), dtype=object)
+intercepts_numpy = np.asarray(arrObejct[:,1], dtype=float) 
+print(intercepts_numpy)
 
 
+
+#####################################
 # Permutation of PLR with TD values
 df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
 df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
-res = RvisualFields.poplr(df_VFs_py) # Permutation of PLR with TD values
+res = RvisualFields.poplr(df_VFs_py, type = "td", testSlope = 0, nperm = 'default', trunc = 1) # Permutation of PLR with TD values
 print(res.keys())
 
 
 # TODO: pred is missed in conversion (not critical)
-# TODO: show an progression example
+
+
 
 ################ Get the locmaps information
 ###### 
