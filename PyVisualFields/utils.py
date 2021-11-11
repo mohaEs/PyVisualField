@@ -96,6 +96,8 @@ def FnGetColumns(length):
         
         
 def FnRecurList(data):
+    # print('WARNING: inner R functions ignored')
+    
     rDictTypes = [ DataFrame,ListVector]
     rArrayTypes = [FloatVector,IntVector, Matrix]
     rListTypes=[StrVector]
@@ -108,7 +110,10 @@ def FnRecurList(data):
     else:
         if hasattr(data, "rclass"): # An unsupported r class
             #raise KeyError('Could not proceed, type {} is not defined'.format(type(data)))
-            print('WARNING: inner function ignored: ')
+            
+            # print('WARNING: inner R functions ignored')
+            error = 1
+            
             # print('Could not proceed, type {} is not defined'.format(type(data)))
         else:
             return data # We reached the end of recursion

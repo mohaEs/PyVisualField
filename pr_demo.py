@@ -16,6 +16,7 @@ import numpy as np
 from matplotlib import pyplot as plt 
 import os
 import math
+import pickle
 
 import rpy2
 import rpy2.robjects as robjects
@@ -38,10 +39,12 @@ from rpy2.robjects.conversion import localconverter
 # lib_vfprogression = importr('vfprogression')
 # lib_grdevices = importr('grDevices')
 
-
+#%%
 # Notice: for our df make sure to have date format as dateformat = "%Y-%m-%d"
 
+# Notice: another work in progress : https://github.com/constructor-s/PyVF
 
+#%%
 ################ Get samples
 ###### Get sample dataset as pandas dataframe 
 df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
@@ -59,7 +62,224 @@ df_VFs_py = Rvfprogression.data_plrnouri2012()
 df_VFs_py = Rvfprogression.data_schell2014()
 
 
+#%%
+######
+###### Get sample dataset as R dataframe 
+df_VFs_r= robjects.r['vfctrSunyiu24d2']
+# lib_vf.vfwrite(df_VFs_r,'tmp1.csv', dateformat = "%Y-%m-%d")
+# s = lib_vf.gettd(df_VFs_r)
+# lib_vf.vfdesc(df_VFs_r)
 
+
+#%%
+##################
+###### plots 
+
+######
+
+
+
+
+td = np.random.randint(low=-35, high=5, size=(54,))
+Rvfprogression.plotValues(td, title= 'Total Deviation',
+                                 save=True, filename='td', fmt='png')
+
+# more realistic example:
+
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh = RvisualFields.getallvalues(df_VFs_py)     
+    
+ind_td_start=df_VFs_py.columns.get_loc("l1")
+ind_td_end=df_VFs_py.columns.get_loc("l54") 
+
+df_td = df_td.fillna(0)
+df_tdp = df_tdp.fillna(0)
+
+td = df_td.iloc[0,ind_td_start:ind_td_end+1].to_numpy().astype(np.int8())
+print(td.shape)
+print(type(td.shape))
+tdp = df_tdp.iloc[0, ind_td_start:ind_td_end+1].to_numpy().astype(np.float16())
+Rvfprogression.plotProbabilities(tdp, title= 'Total Deviation Probablity',
+                                 save=True, filename='tdp', fmt='png')  
+# make sure to use plt.close('all'), if you are using it in a loop
+
+
+#%%
+########
+
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+vf = df_VFs_py.iloc[[0]] 
+
+RvisualFields.vfplot(vf, type='s', save=True, filename='file', fmt='png')
+RvisualFields.vfplot_s(vf, save=True, filename='file', fmt='svg')
+RvisualFields.vfplot_td(vf, save=True, filename='file', fmt='png')
+RvisualFields.vfplot_pd(vf, save=True, filename='file', fmt='pdf')
+RvisualFields.vfplot_tds(vf, save=True, filename='file', fmt='png')
+RvisualFields.vfplot_pds(vf, save=True, filename='file', fmt='png')
+
+
+# show colormap of probablies
+RvisualFields.plotProbColormap(save=True, filename='file', fmt='png') # pdf, png
+
+#%%
+# 
+df_VFs_py = RvisualFields.data_vfpwgSunyiu24d2()
+filter1 = df_VFs_py.id=='sample1'
+filter2 = df_VFs_py.eye=='OD'
+df_vf_1 = df_VFs_py.loc[ filter1 & filter2]
+RvisualFields.vfplotsparklines(df_vf_1, type='s', save=True, filename='file', fmt='png')
+RvisualFields.vfplotsparklines_s(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vfplotsparklines_td(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vfplotsparklines_pd(df_vf_1, save=True, filename='file', fmt='png')
+#%%
+RvisualFields.vfplotplr(df_vf_1, type='s', save=True, filename='file', fmt='png')
+RvisualFields.vfplotplr_s(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vfplotplr_td(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vfplotplr_pd(df_vf_1, save=True, filename='file', fmt='png')
+#%%
+RvisualFields.vflegoplot(df_vf_1, type='s', save=True, filename='file', fmt='png')
+RvisualFields.vflegoplot_s(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vflegoplot_td(df_vf_1, save=True, filename='file', fmt='png')
+RvisualFields.vflegoplot_pd(df_vf_1, save=True, filename='file', fmt='png')
+
+#%%
+
+
+##################
+###### report generation
+
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2() 
+vf = df_VFs_py.iloc[[0]] 
+RvisualFields.vfsfa(vf, 'report.pdf')
+
+# TODO: vfspa
+
+
+#%%
+###########################################
+###### Analysis
+
+######
+df_VFs_py = Rvfprogression.data_cigts()
+results = Rvfprogression.progression_cigts(df_VFs_py)
+print(results)
+
+df_VFs_py = Rvfprogression.data_plrnouri2012()
+results = Rvfprogression.progression_plrnouri2012(df_VFs_py)
+print(results)
+
+df_VFs_py = Rvfprogression.data_vfi()
+results = Rvfprogression.progression_vfi(df_VFs_py)
+print(results)
+
+df_VFs_py = Rvfprogression.data_schell2014()
+results = Rvfprogression.progression_schell2014(df_VFs_py)
+print(results)
+
+
+#%%
+#####################################
+# linear regression with global indices
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
+df_gi = RvisualFields.getgl(df_VFs_py) # get global indices
+res = RvisualFields.glr(df_gi, type = "md", testSlope = 0) #linear regression with global indices
+print(res.keys())
+intercept =  float(res['int'])
+slope = float(res['sl'])
+se =  float(res['se'])
+tval = float(res['tval'])
+pval = float(res['pval'])
+years = res['years']
+
+
+x = np.linspace(0, 1, num=50)
+y = df_gi['tmd'].values
+# Create a list of values in the best fit line
+abline_values = [slope * i + intercept for i in x]
+plt.plot(x, abline_values, '--')
+plt.scatter(years, y)
+plt.xlabel('years')
+plt.ylabel('tmd')
+plt.title('mean deviation of total deviation values')
+
+#%%
+#####################################
+# pointwise linear regression (PLR) with TD values
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
+res = RvisualFields.plr(df_VFs_py, type='s', testSlope=0) # pointwise linear regression (PLR) with TD values
+print('===> keys is res:  \n', res.keys())
+intercept = res['int']
+slope = res['sl']
+standarderror = res['se']
+tval = res['tval']
+pval = res['pval']
+print('===> keys in slope: \n', slope.keys())
+arrObejct = np.asarray(list(slope.items()), dtype=object)
+slopes_numpy = np.asarray(arrObejct[:,1], dtype=float) 
+print('===>slope values:  \n', slopes_numpy)
+arrObejct = np.asarray(list(intercept.items()), dtype=object)
+intercepts_numpy = np.asarray(arrObejct[:,1], dtype=float) 
+print('===> intercepts values:  \n', intercepts_numpy)
+
+
+#%%
+#####################################
+# Permutation of PLR with TD values
+df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
+df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
+res = RvisualFields.poplr(df_VFs_py, type = "td", testSlope = 0, nperm = 'default', trunc = 1) # Permutation of PLR with TD values
+print(res.keys())
+
+
+# TODO: pred is missed in conversion (not critical, because slope, intercepts and erros are available)
+
+
+#%%
+
+################ Get the locmaps information
+###### 
+LocMaps=RvisualFields.locmaps()
+X = LocMaps['p24d2']['coord']['x']
+Y = LocMaps['p24d2']['coord']['y']
+
+#%% Normaliztion value section
+
+################ Get the predefined normalization settings
+NormValues = RvisualFields.normvals()
+NormInfo = RvisualFields.get_info_normvals()
+
+######## Get the current normalization information
+currentNV = RvisualFields.getnv()
+
+######## set normalization values based on predefined ones:
+predeifned_nv_name = 'iowa_Peri_pw'
+RvisualFields.setnv(predeifned_nv_name)
+currentNV = RvisualFields.getnv() # check it is set correctly:
+
+######## caculate new nv values and set it to be used:
+df_VFs_py = RvisualFields.data_vfctrSunyiu24d2()
+newNV_r, newNV_py = RvisualFields.nvgenerate(df_VFs_py, method = "pointwise",
+                             name = "our_NV",
+                             perimetry = "something",
+                             strategy = "something",
+                             size = "tmp")
+RvisualFields.setnv(newNV_r)
+currentNV = RvisualFields.getnv() # check it is set correctly:
+
+''' notcie: this normalization will not be saved.
+We need to set for each session
+so we need to save and load them seperately, e.g.: '''
+newNV_dict = { "newNV_r": newNV_r, "newNV_py": newNV_py }
+pickle.dump( newNV_dict, open( "our_NV.pkl", "wb" ) )
+
+loaded_dict = pickle.load( open( "our_NV.pkl", "rb" ) )
+newNV_r = loaded_dict.newNV_r
+newNV_py = loaded_dict.newNV_py
+
+#### change the normalization values to the defalut of package: sunyiu_24d2
+RvisualFields.setdefaults()
 
 ################################
 # Get all normalized computations
@@ -119,191 +339,12 @@ df_VFs_py.insert(1, 'fl', 0)
 df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh = RvisualFields.getallvalues(df_VFs_py)
 
 
-######
-###### Get sample dataset as R dataframe 
-df_VFs_r= robjects.r['vfctrSunyiu24d2']
-# lib_vf.vfwrite(df_VFs_r,'tmp1.csv', dateformat = "%Y-%m-%d")
-# s = lib_vf.gettd(df_VFs_r)
-# lib_vf.vfdesc(df_VFs_r)
-
-
-
-##################
-###### plots 
-
-######
-
-
-
-
-td = np.random.randint(low=-35, high=5, size=(54,))
-Rvfprogression.plotValues(td, title= 'Total Deviation',
-                                 save=True, filename='td', fmt='png')
-
-# more realistic example:
-
-df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
-df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh = RvisualFields.getallvalues(df_VFs_py)     
-    
-ind_td_start=df_VFs_py.columns.get_loc("l1")
-ind_td_end=df_VFs_py.columns.get_loc("l54") 
-
-df_td = df_td.fillna(0)
-df_tdp = df_tdp.fillna(0)
-
-td = df_td.iloc[0,ind_td_start:ind_td_end+1].to_numpy().astype(np.int8())
-print(td.shape)
-print(type(td.shape))
-tdp = df_tdp.iloc[0, ind_td_start:ind_td_end+1].to_numpy().astype(np.float16())
-Rvfprogression.plotProbabilities(tdp, title= 'Total Deviation Probablity',
-                                 save=True, filename='tdp', fmt='png')  
-# make sure to use plt.close('all'), if you are using it in a loop
-
-########
-
-df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
-vf = df_VFs_py.iloc[[0]] 
-
-RvisualFields.vfplot(vf, type='s', save=True, filename='file', fmt='png')
-RvisualFields.vfplot_s(vf, save=True, filename='file', fmt='svg')
-RvisualFields.vfplot_td(vf, save=True, filename='file', fmt='png')
-RvisualFields.vfplot_pd(vf, save=True, filename='file', fmt='pdf')
-RvisualFields.vfplot_tds(vf, save=True, filename='file', fmt='png')
-RvisualFields.vfplot_pds(vf, save=True, filename='file', fmt='png')
-
-
-# show colormap of probablies
-RvisualFields.plotProbColormap(save=True, filename='file', fmt='png') # pdf, png
-
-# 
-df_VFs_py = RvisualFields.data_vfpwgSunyiu24d2()
-filter1 = df_VFs_py.id=='sample1'
-filter2 = df_VFs_py.eye=='OD'
-df_vf_1 = df_VFs_py.loc[ filter1 & filter2]
-RvisualFields.vfplotsparklines(df_vf_1, type='s', save=True, filename='file', fmt='png')
-RvisualFields.vfplotsparklines_s(df_vf_1, save=True, filename='file', fmt='png')
-RvisualFields.vfplotsparklines_td(df_vf_1, save=True, filename='file', fmt='png')
-RvisualFields.vfplotsparklines_pd(df_vf_1, save=True, filename='file', fmt='png')
-
-RvisualFields.vfplotplr(df_vf_1, type='s', save=True, filename='file', fmt='png')
-RvisualFields.vfplotplr_s(df_vf_1, save=True, filename='file', fmt='png')
-RvisualFields.vfplotplr_td(df_vf_1, save=True, filename='file', fmt='png')
-RvisualFields.vfplotplr_pd(df_vf_1, save=True, filename='file', fmt='png')
-
-RvisualFields.vflegoplot(df_vf_1, type='s', save=True, filename='file', fmt='png')
-RvisualFields.vflegoplot_s(df_vf_1, save=True, filename='file', fmt='png')
-RvisualFields.vflegoplot_td(df_vf_1, save=True, filename='file', fmt='png')
-RvisualFields.vflegoplot_pd(df_vf_1, save=True, filename='file', fmt='png')
-
-
-
-
-##################
-###### report generation
-
-df_VFs_py = RvisualFields.data_vfpwgRetest24d2() 
-vf = df_VFs_py.iloc[[0]] 
-RvisualFields.vfsfa(vf, 'report.pdf')
-
-# TODO: vfspa
-
-###########################################
-###### Analysis
-
-######
-df_VFs_py = Rvfprogression.data_cigts()
-results = Rvfprogression.progression_cigts(df_VFs_py)
-print(results)
-
-df_VFs_py = Rvfprogression.data_plrnouri2012()
-results = Rvfprogression.progression_plrnouri2012(df_VFs_py)
-print(results)
-
-df_VFs_py = Rvfprogression.data_vfi()
-results = Rvfprogression.progression_vfi(df_VFs_py)
-print(results)
-
-df_VFs_py = Rvfprogression.data_schell2014()
-results = Rvfprogression.progression_schell2014(df_VFs_py)
-print(results)
-
-#####################################
-# linear regression with global indices
-df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
-df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
-df_gi = RvisualFields.getgl(df_VFs_py) # get global indices
-res = RvisualFields.glr(df_gi, type = "md", testSlope = 0) #linear regression with global indices
-print(res.keys())
-intercept =  float(res['int'])
-slope = float(res['sl'])
-se =  float(res['se'])
-tval = float(res['tval'])
-pval = float(res['pval'])
-years = res['years']
-
-
-x = np.linspace(0, 1, num=50)
-y = df_gi['tmd'].values
-# Create a list of values in the best fit line
-abline_values = [slope * i + intercept for i in x]
-plt.plot(x, abline_values, '--')
-plt.scatter(years, y)
-plt.xlabel('years')
-plt.ylabel('tmd')
-
-
-#####################################
-# pointwise linear regression (PLR) with TD values
-df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
-df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
-res = RvisualFields.plr(df_VFs_py, type='s', testSlope=0) # pointwise linear regression (PLR) with TD values
-print(res.keys())
-intercept = res['int']
-slope = res['sl']
-standarderror = res['se']
-tval = res['tval']
-pval = res['pval']
-print(slope.keys())
-arrObejct = np.asarray(list(slope.items()))
-slopes_numpy = np.asarray(arrObejct[:,1], dtype=float) 
-print(slopes_numpy)
-arrObejct = np.asarray(list(intercept.items()), dtype=object)
-intercepts_numpy = np.asarray(arrObejct[:,1], dtype=float) 
-print(intercepts_numpy)
-
-
-
-#####################################
-# Permutation of PLR with TD values
-df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
-df_VFs_py = df_VFs_py.loc[(df_VFs_py.id==1) & (df_VFs_py.eye=='OD')]
-res = RvisualFields.poplr(df_VFs_py, type = "td", testSlope = 0, nperm = 'default', trunc = 1) # Permutation of PLR with TD values
-print(res.keys())
-
-
-# TODO: pred is missed in conversion (not critical)
-
-
-
-################ Get the locmaps information
-###### 
-LocMaps=RvisualFields.locmaps()
-X = LocMaps['p24d2']['coord']['x']
-Y = LocMaps['p24d2']['coord']['y']
-
-
-################ Get the normalization values
-###### 
-NormValues=RvisualFields.normvals()
-# TODO
-
-################ calculate new normalization values and set it as default
-###### 
-
-# TODO
+#%%
 
 # TODO: read load pdf xml dcm files
  
+
+#%%
 ################ new R package progression
 ######
 # TODO

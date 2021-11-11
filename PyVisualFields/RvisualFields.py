@@ -27,6 +27,8 @@ from reportlab.lib.pagesizes import letter
 from PyPDF2 import PdfFileWriter, PdfFileReader
 import fitz
 
+from collections import OrderedDict
+
 from rpy2.robjects.packages import importr
 import rpy2.robjects as ro
 import pandas as pd
@@ -656,6 +658,198 @@ def normvals():
     nvals = robjects.r['normvals']
     nvals = FnRecurList(nvals)
     return nvals
+
+def get_info_normvals():
+    robjects.r('''NVs <- normvals               
+               sink("norm_values.txt")
+               print(summary(NVs))
+               
+               for (val in NVs) {
+                    print(paste0('name: ', val$info$name))
+                      print(paste0('perimetry: ', val$info$perimetry))
+                      print(paste0('strategy: ', val$info$strategy))
+                      print(paste0('size: ', val$info$size))
+                      print(paste0(''))
+                }
+               
+               sink()
+               ''')
+               
+    lines = []
+    with open('norm_values.txt') as f:
+        lines = f.readlines()
+        f.close()
+    
+    
+    NameOfNV=[]
+    NameOfNV_info_name=[]
+    NameOfNV_info_perimetry=[]
+    NameOfNV_info_strategy=[]
+    NameOfNV_info_size=[]
+    count = 0
+    for line in lines:
+        count += 1
+        
+        if count>1:
+            line_2 = line.split(' ')[0]
+            if line_2 != '[1]':
+                NameOfNV.append(line_2)
+            else:                 
+                line_2 = line.split('"')[1]
+                
+                if "name:" in line_2: 
+                    line_3 = line.split('name: ')[1]
+                    NameOfNV_info_name.append(line_3[:-2])
+                if "perimetry:" in line_2: 
+                    line_3 = line.split('perimetry: ')[1]
+                    NameOfNV_info_perimetry.append(line_3[:-2])
+                if "strategy:" in line_2: 
+                    line_3 = line.split('strategy: ')[1]
+                    NameOfNV_info_strategy.append(line_3[:-2])
+                if "size:" in line_2: 
+                    line_3 = line.split('size: ')[1]
+                    NameOfNV_info_size.append(line_3[:-2])                    
+
+           # print(f'NV {count-1}: {line_2}')    
+            
+    print('==> comment: > pw: pointwise, classic: smooth')
+    print('==> comment: > default is: sunyiu_24d2')
+    
+    
+    NVs_dict = OrderedDict()
+    for i in range(len(NameOfNV_info_size)):
+        print('')
+        print("==> ObjectName: ", NameOfNV[i])
+        print("name: ", NameOfNV_info_name[i])
+        print("perimetry: ", NameOfNV_info_perimetry[i])
+        print("strategy: ", NameOfNV_info_strategy[i])
+        print("size: ", NameOfNV_info_size[i])
+
+        thisdict = {
+          "name": NameOfNV_info_name[i],
+          "perimetry": NameOfNV_info_perimetry[i],
+          "strategy": NameOfNV_info_strategy[i],
+          "size":   NameOfNV_info_size[i]
+        }
+
+        NVs_dict[NameOfNV[i]] = thisdict
+
+    os.remove('norm_values.txt')
+
+    return NVs_dict
+
+
+
+def getnv():
+    robjects.r('''currentNV <- getnv()               
+           sink("norm_values.txt")
+           print(currentNV$info)
+           sink()
+           ''')
+    lines = []
+    with open('norm_values.txt') as f:
+        lines = f.readlines()
+        f.close()
+    for line in lines:    
+        print(line)
+
+    return lines
+
+def setdefaults():
+    robjects.r('''setdefaults()        
+               print('==> default normalization setting is set:')
+               print(getnv()$info$name) # classic means smooth
+           ''')
+
+
+
+def setnv(inp):
+    if type(inp) is str:
+        valid_strs = ['sunyiu_24d2_pw', 'sunyiu_24d2', 'sunyiu_24d2_pw_cps', 
+                      'sunyiu_24d2_cps', 'iowa_PC26_pw', 'iowa_PC26_pw_cps', 
+                      'iowa_Peri_pw', 'iowa_Peri_pw_cps']
+        if inp in valid_strs:
+
+            if inp=='sunyiu_24d2_pw':
+                robjects.r('''
+                           norm_values <- normvals   
+                           NV <- norm_values$sunyiu_24d2_pw
+                           setnv(NV)           
+                           ''')  
+            elif inp=='sunyiu_24d2':
+                robjects.r('''
+                           norm_values <- normvals   
+                           NV <- norm_values$sunyiu_24d2
+                           setnv(NV)           
+                           ''')                  
+            elif inp=='sunyiu_24d2_pw_cps':
+                robjects.r('''
+                           norm_values <- normvals   
+                           NV <- norm_values$sunyiu_24d2_pw_cps
+                           setnv(NV)           
+                           ''')                  
+            elif inp=='sunyiu_24d2_cps':
+                robjects.r('''
+                           norm_values <- normvals   
+                           NV <- norm_values$sunyiu_24d2_cps
+                           setnv(NV)           
+                           ''')                  
+            elif inp=='iowa_PC26_pw':
+                robjects.r('''
+                           norm_values <- normvals   
+                           NV <- norm_values$iowa_PC26_pw
+                           setnv(NV)           
+                           ''')                  
+            elif inp=='iowa_PC26_pw_cps':
+                robjects.r('''
+                           norm_values <- normvals   
+                           NV <- norm_values$iowa_PC26_pw_cps
+                           setnv(NV)           
+                           ''')                  
+            elif inp=='iowa_Peri_pw':
+                robjects.r('''
+                           norm_values <- normvals   
+                           NV <- norm_values$iowa_Peri_pw
+                           setnv(NV)           
+                           ''')                  
+            elif inp=='iowa_Peri_pw_cps':
+                robjects.r('''
+                           norm_values <- normvals   
+                           NV <- norm_values$iowa_Peri_pw_cps
+                           setnv(NV)           
+                           ''')                                  
+         
+        else:
+            raise NameError('predefined NV names should be one of: ', valid_strs) 
+    else: 
+        
+        if type(inp) is rpy2.robjects.vectors.ListVector:
+            # print('naridi')    
+            lib_vf.setnv(inp)
+    
+    
+
+def nvgenerate(df_py, method = "pointwise",
+                             name = "SUNY-IU pointwise NVs",
+                             perimetry = "static automated perimetry",
+                             strategy = "SITA standard",
+                             size = "Size III"):
+    
+    ''' 
+    method: pointwise or smooth
+    other inputs are arbitrary strings 
+    '''
+    
+    df_vf_r = FnWriteLoadTmpCSV(df_py) 
+    new_nv_r = lib_vf.nvgenerate(df_vf_r, method = method,
+                             name = name,
+                             perimetry = perimetry,
+                             strategy = strategy,
+                             size = size)
+    
+    new_nv_py=FnRecurList(new_nv_r)
+    return new_nv_r, new_nv_py
+    # lib_vf.setnv(new_nv)
 
 
 # def vfdesc(dataframe_VFs_R):
