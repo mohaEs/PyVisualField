@@ -10,8 +10,10 @@ Harvard Medical School
 """
 this file contains required utilities in python
 """
+import os 
+import rpy2 
 
-
+# os.environ["R_HOME"] = 'C:\\Users\\mohae\\anaconda3\\envs\\env_VF\\Lib\\R'
 from rpy2.robjects.vectors import DataFrame, FloatVector, IntVector, StrVector, ListVector, Matrix
 #from rpy2_Matrix import Matrix
 import numpy

@@ -44,6 +44,8 @@ from rpy2.robjects.conversion import localconverter
 
 # Notice: another work in progress : https://github.com/constructor-s/PyVF
 
+# Notice: Todo: check the effect of right eye for plots, and getvalues of the visualFields package
+
 #%%
 ################ Get samples
 ###### Get sample dataset as pandas dataframe 
@@ -75,22 +77,27 @@ df_VFs_r= robjects.r['vfctrSunyiu24d2']
 ##################
 ###### plots 
 
-######
+''' becaus of default showing, make sure to use
+       matplotlib.use("Agg") 
+    and 
+       plt.close('all')
+    if you are using them in a loop '''
 
+###### ##### Rvfprogression
 
-
-
+###### Example 
 td = np.random.randint(low=-35, high=5, size=(54,))
 Rvfprogression.plotValues(td, title= 'Total Deviation',
                                  save=True, filename='td', fmt='png')
 
-# more realistic example:
 
+###### Example
+# more realistic example:
 df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
 df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh = RvisualFields.getallvalues(df_VFs_py)     
     
-ind_td_start=df_VFs_py.columns.get_loc("l1")
-ind_td_end=df_VFs_py.columns.get_loc("l54") 
+ind_td_start=df_td.columns.get_loc("l1")
+ind_td_end=df_td.columns.get_loc("l54") 
 
 df_td = df_td.fillna(0)
 df_tdp = df_tdp.fillna(0)
@@ -101,11 +108,9 @@ print(type(td.shape))
 tdp = df_tdp.iloc[0, ind_td_start:ind_td_end+1].to_numpy().astype(np.float16())
 Rvfprogression.plotProbabilities(tdp, title= 'Total Deviation Probablity',
                                  save=True, filename='tdp', fmt='png')  
-# make sure to use plt.close('all'), if you are using it in a loop
 
 
-#%%
-########
+######## RvisualFields
 
 df_VFs_py = RvisualFields.data_vfpwgRetest24d2()
 vf = df_VFs_py.iloc[[0]] 
@@ -116,7 +121,6 @@ RvisualFields.vfplot_td(vf, save=True, filename='file', fmt='png')
 RvisualFields.vfplot_pd(vf, save=True, filename='file', fmt='pdf')
 RvisualFields.vfplot_tds(vf, save=True, filename='file', fmt='png')
 RvisualFields.vfplot_pds(vf, save=True, filename='file', fmt='png')
-
 
 # show colormap of probablies
 RvisualFields.plotProbColormap(save=True, filename='file', fmt='png') # pdf, png
@@ -142,6 +146,8 @@ RvisualFields.vflegoplot_s(df_vf_1, save=True, filename='file', fmt='png')
 RvisualFields.vflegoplot_td(df_vf_1, save=True, filename='file', fmt='png')
 RvisualFields.vflegoplot_pd(df_vf_1, save=True, filename='file', fmt='png')
 
+
+
 #%%
 
 
@@ -155,26 +161,63 @@ RvisualFields.vfsfa(vf, 'report.pdf')
 # TODO: vfspa
 
 
-#%%
-###########################################
-###### Analysis
 
-######
+
+#%% Get Glaucoma Scores:
+###### ###### Analysis 
+
+# Just make sure the column names and it will find the suitable columns:
+
+######### AGIS -- needs TD values, td1,...
+
+df_VFs_py = Rvfprogression.data_vfseries()
+df_VF_py = df_VFs_py.iloc[15]
+score = Rvfprogression.get_score_AGIS(df_VF_py)
+
+    
+######### cigts -- needs TDP values, tdp1, ..
+df_VFs_py = Rvfprogression.data_vfseries()
+df_VF_py = df_VFs_py.iloc[15]
+score = Rvfprogression.get_score_CIGTS(df_VF_py)  
+
+
+
+#%% Analysis - Progression
+###########################################
+
+###### at least 5 VFs required
 df_VFs_py = Rvfprogression.data_cigts()
 results = Rvfprogression.progression_cigts(df_VFs_py)
 print(results)
 
+# Just make sure the column names and it will find the suitable columns:
+    
+''' '''    
+df_VFs_py_ = Rvfprogression.data_vfseries() # get data from pac
+results = Rvfprogression.progression_cigts(df_VFs_py_) # get 
+print(results)
+
+###### at least 5 VFs required
 df_VFs_py = Rvfprogression.data_plrnouri2012()
 results = Rvfprogression.progression_plrnouri2012(df_VFs_py)
 print(results)
 
+###### at least 5 VFs required
 df_VFs_py = Rvfprogression.data_vfi()
 results = Rvfprogression.progression_vfi(df_VFs_py)
 print(results)
 
+###### at least 5 VFs required
 df_VFs_py = Rvfprogression.data_schell2014()
 results = Rvfprogression.progression_schell2014(df_VFs_py)
 print(results)
+
+
+###### at least 5 VFs required
+df_VFs_py_ = Rvfprogression.data_vfseries()
+results = Rvfprogression.progression_agis(df_VFs_py_)
+print(results)
+
 
 
 #%%
@@ -200,7 +243,7 @@ abline_values = [slope * i + intercept for i in x]
 plt.plot(x, abline_values, '--')
 plt.scatter(years, y)
 plt.xlabel('years')
-plt.ylabel('tmd')
+plt.ylabel('TMD')
 plt.title('mean deviation of total deviation values')
 
 #%%
@@ -233,6 +276,7 @@ res = RvisualFields.poplr(df_VFs_py, type = "td", testSlope = 0, nperm = 'defaul
 print(res.keys())
 
 
+
 # TODO: pred is missed in conversion (not critical, because slope, intercepts and erros are available)
 
 
@@ -246,40 +290,10 @@ Y = LocMaps['p24d2']['coord']['y']
 
 #%% Normaliztion value section
 
-################ Get the predefined normalization settings
-NormValues = RvisualFields.normvals()
-NormInfo = RvisualFields.get_info_normvals()
+
 
 ######## Get the current normalization information
 currentNV = RvisualFields.getnv()
-
-######## set normalization values based on predefined ones:
-predeifned_nv_name = 'iowa_Peri_pw'
-RvisualFields.setnv(predeifned_nv_name)
-currentNV = RvisualFields.getnv() # check it is set correctly:
-
-######## caculate new nv values and set it to be used:
-df_VFs_py = RvisualFields.data_vfctrSunyiu24d2()
-newNV_r, newNV_py = RvisualFields.nvgenerate(df_VFs_py, method = "pointwise",
-                             name = "our_NV",
-                             perimetry = "something",
-                             strategy = "something",
-                             size = "tmp")
-RvisualFields.setnv(newNV_r)
-currentNV = RvisualFields.getnv() # check it is set correctly:
-
-''' notcie: this normalization will not be saved.
-We need to set for each session
-so we need to save and load them seperately, e.g.: '''
-newNV_dict = { "newNV_r": newNV_r, "newNV_py": newNV_py }
-pickle.dump( newNV_dict, open( "our_NV.pkl", "wb" ) )
-
-loaded_dict = pickle.load( open( "our_NV.pkl", "rb" ) )
-newNV_r = loaded_dict.newNV_r
-newNV_py = loaded_dict.newNV_py
-
-#### change the normalization values to the defalut of package: sunyiu_24d2
-RvisualFields.setdefaults()
 
 ################################
 # Get all normalized computations
@@ -294,9 +308,6 @@ df_pd = RvisualFields.getpd(df_td) # get PD values
 gh = RvisualFields.getgh(df_td) # get the general height
 df_pdp = RvisualFields.getpdp(df_pd) # get PD probability values
 df_gip = RvisualFields.getglp(df_gi) # get global indices probability values
-
-
-
 
 
 # another example to show required fields
@@ -339,10 +350,43 @@ df_VFs_py.insert(1, 'fl', 0)
 df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh = RvisualFields.getallvalues(df_VFs_py)
 
 
+################ Get the predefined normalization settings
+NormValues = RvisualFields.normvals()
+NormInfo = RvisualFields.get_info_normvals()
+
+######## set normalization values based on predefined ones:
+currentNV = RvisualFields.getnv()
+predeifned_nv_name = 'iowa_Peri_pw'
+RvisualFields.setnv(predeifned_nv_name)
+currentNV = RvisualFields.getnv() # check it is set correctly:
+
+######## caculate new nv values and set it to be used:
+df_VFs_py = RvisualFields.data_vfctrSunyiu24d2()
+newNV_r, newNV_py = RvisualFields.nvgenerate(df_VFs_py, method = "pointwise",
+                             name = "our_NV",
+                             perimetry = "something",
+                             strategy = "something",
+                             size = "tmp")
+RvisualFields.setnv(newNV_r)
+currentNV = RvisualFields.getnv() # check it is set correctly:
+
+''' notcie: this normalization will not be saved.
+We need to set for each session
+so we need to save and load them seperately, e.g.: '''
+newNV_dict = { "newNV_r": newNV_r, "newNV_py": newNV_py }
+pickle.dump( newNV_dict, open( "our_NV.pkl", "wb" ) )
+
+loaded_dict = pickle.load( open( "our_NV.pkl", "rb" ) )
+newNV_r = loaded_dict['newNV_r']
+newNV_py = loaded_dict['newNV_py']
+RvisualFields.setnv(newNV_r) # set it to be used
+
+#### change the normalization values to the defalut of package: sunyiu_24d2
+RvisualFields.setdefaults()
+
+
 #%%
 
-# TODO: read load pdf xml dcm files
- 
 
 #%%
 ################ new R package progression
