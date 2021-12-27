@@ -1,4 +1,16 @@
 
+This package needs R 4.1.1 and rpy2 3.4.5 be installed and working correclty.
+
+Use pr_test_rpy to verify that if they work fine.
+
+
+
+
+
+
+
+
+
 
 
 create conda environment to install R and rpy2: </br>
