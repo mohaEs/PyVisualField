@@ -26,7 +26,7 @@ if correct, install required R packages
 all other dependencies ################################
 ```
 pip install tzlocal
-pip install skimage
+pip install scikit-image
 pip install pandas
 
 pip install PyPDF2
