@@ -32,4 +32,6 @@ pip install pandas
 pip install PyPDF2
 pip install PyMuPDF 
 pip install reportlab
+
+pip install matplotlib
 ```
