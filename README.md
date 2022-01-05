@@ -1,4 +1,4 @@
-# PyVisualField tool collection for analyzing visual field 
+# PyVisualField: A collection of tools for analyzing visual field 
 
 ## Address the following steps to prepare the system
 
