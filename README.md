@@ -16,13 +16,13 @@ use _pr_install_R_packages.py_ to install required R packages.
 
 ## 3- install python packages
 install other requirements are:  </br>
-    tzlocal >= 3.0 </br>
-    scikit-image >= 0.18.1 </br>
-    pandas >= 1.2.4 </br>
-    PyPDF2 >=  1.26.0 </br>
-    PyMuPDF >= 1.19.1 </br>
-    reportlab >=  3.6.2 </br>
-    matplotlib >= 3.3.4 </br>
+&emsp;    tzlocal >= 3.0 </br>
+&emsp;    scikit-image >= 0.18.1 </br>
+&emsp;    pandas >= 1.2.4 </br>
+&emsp;    PyPDF2 >=  1.26.0 </br>
+&emsp;    PyMuPDF >= 1.19.1 </br>
+&emsp;    reportlab >=  3.6.2 </br>
+&emsp;    matplotlib >= 3.3.4 </br>
 
 ### Done: now you can import the library and use the notebooks 
 ### +++++++++++++++++++++++++++++++++++
