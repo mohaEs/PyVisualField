@@ -719,7 +719,7 @@ def get_info_normvals():
     NVs_dict = OrderedDict()
     for i in range(len(NameOfNV_info_size)):
         print('')
-        print("==> ObjectName: ", NameOfNV[i])
+        print("==> SettingName: ", NameOfNV[i])
         print("name: ", NameOfNV_info_name[i])
         print("perimetry: ", NameOfNV_info_perimetry[i])
         print("strategy: ", NameOfNV_info_strategy[i])

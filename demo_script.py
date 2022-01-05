@@ -91,6 +91,15 @@ vfprogression.plotValues(td, title= 'Total Deviation',
 
 
 ###### Example plotProbabilities
+df_VFs_py = vfprogression.data_vfseries()
+vf = df_VFs_py.iloc[[5]] # get a one VF
+ind_tdp_start= vf.columns.get_loc("tdp1")
+ind_tdp_end= vf.columns.get_loc("tdp54") 
+tdp = vf.iloc[0, ind_tdp_start:ind_tdp_end+1].to_numpy().astype(np.float16())
+vfprogression.plotProbabilities(tdp, title= 'Total Deviation Probablity',
+                                 save=True, filename='tdp', fmt='png')  
+
+###### Example plotProbabilities
 # more realistic example:
 df_VFs_py = visualFields.data_vfpwgRetest24d2()
 df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh = visualFields.getallvalues(df_VFs_py)     
@@ -115,7 +124,7 @@ df_VFs_py = visualFields.data_vfpwgRetest24d2()
 vf = df_VFs_py.iloc[[0]] 
 
 visualFields.vfplot(vf, type='s', save=True, filename='file', fmt='png')
-visualFields.vfplot_s(vf, save=True, filename='file', fmt='svg')
+visualFields.vfplot_s(vf, save=True, filename='file', fmt='png')
 visualFields.vfplot_td(vf, save=True, filename='file', fmt='png')
 visualFields.vfplot_pd(vf, save=True, filename='file', fmt='pdf')
 visualFields.vfplot_tds(vf, save=True, filename='file', fmt='png')
