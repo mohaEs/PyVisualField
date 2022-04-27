@@ -1,0 +1,11 @@
+
+###### Requirements with Version Specifiers ######
+
+tzlocal >= 3.0
+tzlocal >= 3.0 
+scikit-image >= 0.18.1 
+pandas >= 1.2.4 
+PyPDF2 >=  1.26.0 
+PyMuPDF >= 1.19.1 
+reportlab >=  3.6.2 
+matplotlib >= 3.3.4 

@@ -9,6 +9,8 @@ try:
     import rpy2
     print('===> rpy2 version: ', rpy2.__version__)
     
+    import rpy2.robjects as robjects
+
     from rpy2.robjects.packages import importr
     # import rpy2's package module
     import rpy2.robjects.packages as rpackages

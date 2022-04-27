@@ -36,15 +36,17 @@ if len(names_to_install) > 0:
 
 try: 
     lib_vf = importr('visualFields')
+    print('===> visualFields R package is installed/loaded successfully!')
     lib_vfprogression = importr('vfprogression')
-    print('===> Visual Field packages are loaded successfully!')
+    print('===> vfprogression R package is installed/loaded successfully!')
+    
 except:
     print('===> Something is wrong: R packages are not available!')
     
 
-try:
-    import PyVisualFields
-    print('===> PyVisualFields package loaded successfully!')
-except:
-    print('===> Something is wrong: PyVisualFields is not available!')
+# try:
+#     import PyVisualFields
+#     print('===> PyVisualFields package loaded successfully!')
+# except:
+#     print('===> Something is wrong: PyVisualFields is not available!')
     
