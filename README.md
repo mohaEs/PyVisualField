@@ -17,10 +17,9 @@ This package depends on
 - vfprogression R package
 - visualFields R package
 
-Make sure to install them before installing this PyVisualFields package.
+Make sure to install them before installing this PyVisualFields package:
 
-Follow the steps provided in our guideline: [readme_Installation.md](readme_Installation.md)
-
-If you want to create a seperate conda environment and install everything from scratch follow this guidline: [readme_Installation_conda.md](readme_Installation_conda.md)
+- If you want to create a seperate conda environment and install everything from scratch follow this guidline: [readme_Installation_conda.md](readme_Installation_conda.md)
 or these videos: 
 
+- If you have your preinstalled R or rpy2, follow the steps provided in our guideline: [readme_Installation.md](readme_Installation.md)
