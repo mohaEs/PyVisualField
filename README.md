@@ -1,5 +1,15 @@
 # PyVisualField tool collection for analyzing visual field 
 
+
+## Demo jupyter notebooks
+
+You can find provived examples in 4 different notebooks categorized to: </br>
+- Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
+- Analysis [demo_2_Analysis.ipynb](demo_2_Analysis.ipynb)
+- Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
+- Normalization [demo_4_Normalization_Deviation_Analysis.ipynb](demo_4_Normalization_Deviation_Analysis.ipynb)
+
+
 ## Address the following steps to prepare the system
 
 1- Installs and set R and rpy2 work well </br>
@@ -48,7 +58,7 @@ in cmd or anaconda prompt, set a permanent setting path:
 > setx R_HOME path/to/R
 
 ==> For mac or Linux: </br>
-====> permanently: </br>
+permanently: </br>
 > echo 'export R_HOME=path/to/R' >> ~/.bash_profile 
 
 ### Notice: You need to close and open a new terminal to have changes
