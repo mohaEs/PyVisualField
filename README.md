@@ -7,8 +7,7 @@ You can find provived examples in 4 different notebooks categorized to: </br>
 - Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
 - Analysis [demo_2_Analysis.ipynb](demo_2_Analysis.ipynb)
 - Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
-- Normalization [demo_4_Normalization_Deviation_Analysis.ipynb](demo_4_Normalization_Deviation_Analysis.ipynb)
-
+- Normalization and deviation analysis [demo_4_Normalization_Deviation_Analysis.ipynb](demo_4_Normalization_Deviation_Analysis.ipynb)
 
 ## Address the following steps to prepare the system
 
