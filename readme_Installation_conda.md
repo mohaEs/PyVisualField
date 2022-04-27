@@ -4,8 +4,8 @@ If you have not installed any R or rpy2, or want to make a seperate environment 
 
 ### 1- create and activate a conda environment:
 
-> conda create --name env_pyVF python=3.8 </br>
-> conda activate env_pyVF </br>
+> \> conda create --name env_pyVF python=3.8 </br>
+> \> conda activate env_pyVF </br>
 
 ### 2- install R in the environment
 install R 4.1.2: </br>

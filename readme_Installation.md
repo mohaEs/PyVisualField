@@ -17,7 +17,7 @@ use _install_R_packages.py_ to install required R packages.
 
 ## 3- install python packages
 install other requirements with requirement.txt file:
-> pip install -r requirements.txt </br>
+> \> pip install -r requirements.txt </br>
 
 or simply manually install these:   </br>
 &emsp;    tzlocal >= 3.0 </br>
