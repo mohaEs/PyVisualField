@@ -14,7 +14,7 @@ You can find provived examples in 4 different notebooks categorized to: </br>
 - Normalization and deviation analysis [demo_4_Normalization_Deviation_Analysis.ipynb](demo_4_Normalization_Deviation_Analysis.ipynb)
 
 ## Installation: 
-This package depends on 
+This python package depends on 
 - R 
 - rpy2 python package
 - vfprogression R package
