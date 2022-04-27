@@ -28,6 +28,9 @@ or these videos:
 - If you have your preinstalled R or rpy2, follow the steps provided in our guideline: [readme_Installation.md](readme_Installation.md)
 
 ## references:
-[1] https://cran.r-project.org/web/packages/vfprogression/index.html
+[1] https://cran.r-project.org/web/packages/vfprogression/index.html </br>
 [2] https://cran.r-project.org/web/packages/visualFields/index.html 
 
+</br>
+
+![](./imgs/img.jpg)
