@@ -48,9 +48,7 @@ in cmd or anaconda prompt, set a permanent setting path:
 > setx R_HOME path/to/R
 
 ==> For mac or Linux: </br>
-> export R_HOME=path/to/R 
-
-====> or permanently: </br>
+====> permanently: </br>
 > echo 'export R_HOME=path/to/R' >> ~/.bash_profile 
 
 ### Notice: You need to close and open a new terminal to have changes
