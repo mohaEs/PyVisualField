@@ -1,6 +1,25 @@
-# PyVisualFields 
+Metadata-Version: 2.1
+Name: PyVisualFields
+Version: 0.0.1
+Summary: A python toolkit for visual field analysis
+Home-page: https://github.com/mohaEs/PyVisualField
+Author: Mohammad Eslami
+Author-email: Mohammad_eslami@meei.harvard.edu
+License: UNKNOWN
+Project-URL: Bug Tracker, https://github.com/mohaEs/PyVisualField/issues
+Project-URL: Demo Data, https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb
+Project-URL: Demo Analysis, https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Analysis.ipynb
+Project-URL: Demo Plotting, https://github.com/mohaEs/PyVisualField/blob/main/demo_3_Plotting.ipynb
+Project-URL: Demo Normalization, https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Normalization_Deviation_Analysis.ipynb
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: license
 
-## A python tool collection for analyzing visual fields 
+# PyVisualField tool collection for analyzing visual field 
 
 This packages includes functions for visuald field analysis and display. 
 
@@ -36,3 +55,5 @@ or these videos:
 </br>
 
 ![](./imgs/img.jpg)
+
+
