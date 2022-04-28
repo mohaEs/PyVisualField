@@ -9,11 +9,12 @@ We use the rpy2 as the python wrapper to use R in Python. Then, we define and pr
 
 ## Demo jupyter notebooks
 
-The list and description of all functions are available at [All_Functions](#list-of-functions). They are all examined and introduced witn examples in 4 different notebooks categorized: </br>
+The list and description of all functions are available at [All_Functions](#list-of-functions). They are all examined and introduced with examples in 4 different notebooks categorized: </br>
 - Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
 - Normalization and deviation analysis [demo_2_Deviation_Analysis.ipynb](demo_2_Deviation_Analysis.ipynb)
 - Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
 - Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+
 
 
 ## Installation: 
@@ -40,6 +41,14 @@ or these videos:
 
 
 ## list of functions
+The list and description of all functions are as follow. They are all examined and introduced with examples in 4 different notebooks. It is important to mention that, based on the background R packages, the input VF dataframe needs to have columns with special column names. Make sure, to consider the data notebook. If further information is required, see the corresponding references: _vfprogression[1]_, _visualFields[2]_ </br>
+- Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
+- Normalization and deviation analysis [demo_2_Deviation_Analysis.ipynb](demo_2_Deviation_Analysis.ipynb)
+- Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
+- Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+
+</br>
+
 -   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   __function__  &nbsp; ----------------------------- &nbsp; __description__ &nbsp; ----------- &nbsp; __from package__ </br> </br>
 - visualFields.data_vfpwgRetest24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[2]_ 
 - visualFields.data_vfctrSunyiu24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[2]_ 
@@ -53,8 +62,8 @@ or these videos:
 - vfprogression.data_plrnouri2012() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[1]_ 
 - vfprogression.data_schell2014()  &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[1]_  </br></br>
 - vfprogression.get_score_AGIS() &nbsp; ----------- &nbsp;  get AGIS score &nbsp; ----------- &nbsp; _vfprogression[1]_
-- vfprogression.get_score_CIGTS() &nbsp; ----------- &nbsp;  get CIGITS score &nbsp; ----------- &nbsp; _vfprogression[1]_
-- vfprogression.progression_cigts() &nbsp; ----------- &nbsp;  progression analysis by CIGITS &nbsp; ----------- &nbsp; _vfprogression[1]_
+- vfprogression.get_score_CIGTS() &nbsp; ----------- &nbsp;  get CIGTS score &nbsp; ----------- &nbsp; _vfprogression[1]_
+- vfprogression.progression_cigts() &nbsp; ----------- &nbsp;  progression analysis by CIGTS &nbsp; ----------- &nbsp; _vfprogression[1]_
 - vfprogression.progression_plrnouri2012() &nbsp; ----------- &nbsp;  progression analysis by Nouri et al. &nbsp; ----------- &nbsp; _vfprogression[1]_
 - vfprogression.progression_vfi()&nbsp; ----------- &nbsp;  progression analysis by VFi measurements &nbsp; ----------- &nbsp; _vfprogression[1]_
 - vfprogression.progression_schell2014()&nbsp; ----------- &nbsp;  progression analysis by schell et al. &nbsp; ----------- &nbsp; _vfprogression[1]_
