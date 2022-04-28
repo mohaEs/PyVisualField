@@ -77,7 +77,7 @@ or these videos:
 - visualFields.vfplotsparklines_pd() &nbsp; ----------- &nbsp; alias for vfplotsparklines(type='pd') &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.vfplotplr() &nbsp; ----------- &nbsp; -- &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.vflegoplot() &nbsp; ----------- &nbsp; -- &nbsp; ----------- &nbsp; _visualFields[2]_ 
-- visualFields.vfsfa() &nbsp; ----------- &nbsp; Generates of one-page reports of single field analyses as a pdf file &nbsp; ----------- &nbsp; _visualFields[2]_  </br></br>
+- visualFields.vfsfa() &nbsp; ----------- &nbsp; Generates one-page report of single field analyses as a pdf file &nbsp; ----------- &nbsp; _visualFields[2]_  </br></br>
 - currentNV = visualFields.getnv() &nbsp; ----------- &nbsp; get current normative environment/setting (NV) &nbsp; ----------- &nbsp; _visualFields[2]_ 
 - visualFields.getallvalues() &nbsp; ----------- &nbsp; compute all td, pd, pdp, tdp, gl, gh,glp based on the current NV &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.gettd() &nbsp; ----------- &nbsp; alias for getallvalues only to compute td &nbsp; ----------- &nbsp; _visualFields[2]_
@@ -87,7 +87,7 @@ or these videos:
 - visualFields.getgh() &nbsp; ----------- &nbsp; alias for getallvalues only to compute gh &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.getpdp() &nbsp; ----------- &nbsp; alias for getallvalues only to compute pdp &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.getglp() &nbsp; ----------- &nbsp; alias for getallvalues only to compute gi &nbsp; ----------- &nbsp; _visualFields[2]_
-- visualFields.get_info_normvals() &nbsp; ----------- &nbsp; Get all predefined normalization environments/settings &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.get_info_normvals() &nbsp; ----------- &nbsp; Get all avialbale predefined normalization environments/settings &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.setnv() &nbsp; ----------- &nbsp; change/set normalization environment based on a predefined NV &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.nvgenerate &nbsp; ----------- &nbsp; generate a normalization environment based new data &nbsp; ----------- &nbsp; _visualFields[2]_
 
