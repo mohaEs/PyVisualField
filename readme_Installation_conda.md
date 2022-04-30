@@ -54,7 +54,7 @@ install required R packages with _install_R_packages.py_
 
 evaluate the installation with _test_Rpacks.py_
 
-### 6- install required python packages
+### 6- install required python packages (you can skip this)
 > (env_pyVF)\> pip install -r requirements.txt
 
 ### 7- install PyVisualFields

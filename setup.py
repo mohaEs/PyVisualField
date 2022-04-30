@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="PyVisualFields",
-    version="1.0.0",
+    version="1.0.1",
     author="Mohammad Eslami",
     author_email="Mohammad_eslami@meei.harvard.edu",
     description="A python toolkit for visual field analysis",
@@ -27,6 +27,14 @@ setuptools.setup(
     ],
     package_dir={"": "PyVisualFields"},
     packages=setuptools.find_packages(where="PyVisualFields"),
+    install_requires = ["tzlocal >= 3.0",
+            "tzlocal >= 3.0",
+            "scikit-image >= 0.18.1",
+            "pandas >= 1.2.4",
+            "PyPDF2 >=  1.26.0",
+            "PyMuPDF >= 1.19.1",
+            "reportlab >=  3.6.2",
+            "matplotlib >= 3.3.4" ],
     python_requires=">=3.6",
 )
 

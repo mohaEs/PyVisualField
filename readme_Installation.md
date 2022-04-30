@@ -15,7 +15,7 @@ If you recieved error: "R_HOME must be set in the environment or Registry", you 
 ## 2- install R packages
 use _install_R_packages.py_ to install required R packages.
 
-## 3- install python packages
+## 3- install python packages (you can skip this)
 install other requirements with requirement.txt file:
 > \> pip install -r requirements.txt </br>
 
