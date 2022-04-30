@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: PyVisualFields
-Version: 1.0.1
+Version: 1.0.2
 Summary: A python toolkit for visual field analysis
 Home-page: https://github.com/mohaEs/PyVisualField
 Author: Mohammad Eslami
@@ -26,6 +26,8 @@ License-File: license
 
 This packages includes functions for visuald field analysis and display. 
 
+https://pypi.org/project/PyVisualFields/
+
 We use the rpy2 as the python wrapper to use R in Python. Then, we define and prepare the methods to call the methods and data implemented and introduced in R packages vfprogression (by Elze et al. [1]) and visualFields (by Marin-Granch et al. [2]). We write these functions in python language and demonstrate their functionalities in four categories of presenting data, plotting, scoring and progression analysis, and normalization analysis. For each category, we provide the examples, description of each function, associated requirements, and the output of that function in Jupyter notebooks.
 
 
@@ -49,7 +51,7 @@ This python package depends on
 Make sure to install them before installing this PyVisualFields package:
 
 - If you want to create a seperate conda environment and install everything from scratch follow this guidline: [readme_Installation_conda.md](https://github.com/mohaEs/PyVisualField/blob/main/readme_Installation_conda.md)
-or these videos: 
+or this video [installation_video](https://youtu.be/_L9YWrtlOhY) 
 
 - If you have your preinstalled R or rpy2, follow the steps provided in our guideline: [readme_Installation.md](https://github.com/mohaEs/PyVisualField/blob/main/readme_Installation.md)
 
