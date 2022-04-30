@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="PyVisualFields",
-    version="0.0.2",
+    version="1.0.0",
     author="Mohammad Eslami",
     author_email="Mohammad_eslami@meei.harvard.edu",
     description="A python toolkit for visual field analysis",
@@ -14,10 +14,11 @@ setuptools.setup(
     url="https://github.com/mohaEs/PyVisualField",
     project_urls={
         "Bug Tracker": "https://github.com/mohaEs/PyVisualField/issues",
-        "Demo Data": "https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb",
-        "Demo Analysis": "https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Analysis.ipynb",
+        "Demo Normalization": "https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Deviation_Analysis.ipynb",
         "Demo Plotting": "https://github.com/mohaEs/PyVisualField/blob/main/demo_3_Plotting.ipynb",
-        "Demo Normalization": "https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Normalization_Deviation_Analysis.ipynb",
+        "Demo Analysis": "https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Analysis.ipynb",
+        "Demo Data": "https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb",    
+        "Harvard Ophthalmology AI LAB": "https://ophai.hms.harvard.edu/" 
     },
     classifiers=[
         "Programming Language :: Python :: 3",

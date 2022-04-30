@@ -2,7 +2,7 @@
 
 # Address the following steps to prepare the system
 
-1- Installs and set R and rpy2 work well </br>
+1- Verify R and rpy2 work well </br>
 2- Install R requirements </br>
 3- Install python requirements </br>
 4- install our PyVisualFields package
@@ -10,7 +10,7 @@
 ## 1- verify the R and rpy2 installation
 This package needs R >= 4.1.1 and rpy2 >= 3.4.5 to be installed and work fine. </br>
 After your prefered installation approach, use the _test_rpy2.py_ to verify that your installation works.
-If you recieved error: "R_HOME must be set in the environment or Registry", you need to fix it first (see the section 2 or 3 of the readme). 
+If you recieved error: "R_HOME must be set in the environment or Registry", you need to fix it first (see the [section 2](R_HOME) of the readme). 
 
 ## 2- install R packages
 use _install_R_packages.py_ to install required R packages.
@@ -28,21 +28,25 @@ or simply manually install these:   </br>
 &emsp;    reportlab >=  3.6.2 </br>
 &emsp;    matplotlib >= 3.3.4 </br>
 
+## 4- install the PyVisualFields package
+
+> \> pip install PyVisualFields
+
 ### Done: now you can import the library and use the notebooks 
+</br></br>
+## +++++++++ Section 2 ++++++++
 
-
-
-## ++++++++++++ Section 2 +++++++++++++++++++++++
+# R_HOME
 
 ## rpy2 problem (R_HOME)
-if you have installed R and rpy2 and have a problem to set the R_HOME error: </br>
+if you have installed R and rpy2 before and have a problem to set the R_HOME error. </br>
 Quick fix: </br> 
 ### A) Get your R path (path/to/R) </br>
 in R terminal type R.home() and get the path of installed R. </br>
 example: </br>
 > \> R.home() </br>
 [1] "C:/Users/mohae/anaconda3/envs/env_test_pyVF/lib/R" </br>
-so we have our path/to/R as "C:/Users/mohae/anaconda3/envs/env_test_pyVF/lib/R" 
+so we have our path/to/R e.g. as "C:/Users/mohae/anaconda3/envs/env_test_pyVF/lib/R" 
 
 ### B) add the R_HOME variable
 Then set the R_HOME environment variable to this path. </br>
@@ -54,4 +58,4 @@ in cmd or anaconda prompt, set a permanent setting path:
 permanently: </br>
 > echo 'export R_HOME=path/to/R' >> ~/.bash_profile 
 
-### Notice: You need to close and open a new terminal to have changes
+### __Notice__: You need to restart the terminal to have changes

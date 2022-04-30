@@ -1,16 +1,17 @@
 Metadata-Version: 2.1
 Name: PyVisualFields
-Version: 0.0.1
+Version: 1.0.0
 Summary: A python toolkit for visual field analysis
 Home-page: https://github.com/mohaEs/PyVisualField
 Author: Mohammad Eslami
 Author-email: Mohammad_eslami@meei.harvard.edu
 License: UNKNOWN
 Project-URL: Bug Tracker, https://github.com/mohaEs/PyVisualField/issues
-Project-URL: Demo Data, https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb
-Project-URL: Demo Analysis, https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Analysis.ipynb
+Project-URL: Demo Normalization, https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Deviation_Analysis.ipynb
 Project-URL: Demo Plotting, https://github.com/mohaEs/PyVisualField/blob/main/demo_3_Plotting.ipynb
-Project-URL: Demo Normalization, https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Normalization_Deviation_Analysis.ipynb
+Project-URL: Demo Analysis, https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Analysis.ipynb
+Project-URL: Demo Data, https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb
+Project-URL: Harvard Ophthalmology AI LAB, https://ophai.hms.harvard.edu/
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -19,7 +20,9 @@ Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: license
 
-# PyVisualField tool collection for analyzing visual field 
+# PyVisualFields 
+
+## A python tool collection for analyzing visual fields 
 
 This packages includes functions for visuald field analysis and display. 
 
@@ -28,11 +31,13 @@ We use the rpy2 as the python wrapper to use R in Python. Then, we define and pr
 
 ## Demo jupyter notebooks
 
-You can find provived examples in 4 different notebooks categorized to: </br>
+The list and description of all functions are available at [All_Functions](#list-of-functions). They are all examined and introduced with examples in 4 different notebooks categorized: </br>
 - Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
-- Analysis [demo_2_Analysis.ipynb](demo_2_Analysis.ipynb)
+- Normalization and deviation analysis [demo_2_Deviation_Analysis.ipynb](demo_2_Deviation_Analysis.ipynb)
 - Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
-- Normalization and deviation analysis [demo_4_Normalization_Deviation_Analysis.ipynb](demo_4_Normalization_Deviation_Analysis.ipynb)
+- Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+
+
 
 ## Installation: 
 This python package depends on 
@@ -43,10 +48,10 @@ This python package depends on
 
 Make sure to install them before installing this PyVisualFields package:
 
-- If you want to create a seperate conda environment and install everything from scratch follow this guidline: [readme_Installation_conda.md](readme_Installation_conda.md)
+- If you want to create a seperate conda environment and install everything from scratch follow this guidline: [readme_Installation_conda.md](https://github.com/mohaEs/PyVisualField/blob/main/readme_Installation_conda.md)
 or these videos: 
 
-- If you have your preinstalled R or rpy2, follow the steps provided in our guideline: [readme_Installation.md](readme_Installation.md)
+- If you have your preinstalled R or rpy2, follow the steps provided in our guideline: [readme_Installation.md](https://github.com/mohaEs/PyVisualField/blob/main/readme_Installation.md)
 
 ## references:
 [1] https://cran.r-project.org/web/packages/vfprogression/index.html </br>
@@ -55,5 +60,67 @@ or these videos:
 </br>
 
 ![](./imgs/img.jpg)
+
+
+## list of functions
+The list and description of all functions are as follow. They are all examined and introduced with examples in 4 different notebooks. It is important to mention that, based on the background R packages, the input VF dataframe needs to have columns with special column names. Make sure, to consider the data notebook. If further information is required, see the corresponding references: _vfprogression[1]_, _visualFields[2]_ </br>
+- Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
+- Normalization and deviation analysis [demo_2_Deviation_Analysis.ipynb](demo_2_Deviation_Analysis.ipynb)
+- Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
+- Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+
+</br>
+
+-   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   __function__  &nbsp; ----------------------------- &nbsp; __description__ &nbsp; ----------- &nbsp; __from package__ </br> </br>
+- visualFields.data_vfpwgRetest24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[2]_ 
+- visualFields.data_vfctrSunyiu24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[2]_ 
+- visualFields.data_vfpwgSunyiu24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[2]_ 
+- visualFields.data_vfctrSunyiu10d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[2]_ 
+-  visualFields.data_vfctrIowaPC26() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[2]_ 
+- visualFields.data_vfctrIowaPeri() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[2]_ </br></br>
+- vfprogression.data_vfseries() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[1]_ 
+- vfprogression.data_vfi() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[1]_ 
+-  vfprogression.data_cigts() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[1]_ 
+- vfprogression.data_plrnouri2012() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[1]_ 
+- vfprogression.data_schell2014()  &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[1]_  </br></br>
+- vfprogression.get_score_AGIS() &nbsp; ----------- &nbsp;  get AGIS score &nbsp; ----------- &nbsp; _vfprogression[1]_
+- vfprogression.get_score_CIGTS() &nbsp; ----------- &nbsp;  get CIGTS score &nbsp; ----------- &nbsp; _vfprogression[1]_
+- vfprogression.progression_cigts() &nbsp; ----------- &nbsp;  progression analysis by CIGTS &nbsp; ----------- &nbsp; _vfprogression[1]_
+- vfprogression.progression_plrnouri2012() &nbsp; ----------- &nbsp;  progression analysis by Nouri et al. &nbsp; ----------- &nbsp; _vfprogression[1]_
+- vfprogression.progression_vfi()&nbsp; ----------- &nbsp;  progression analysis by VFi measurements &nbsp; ----------- &nbsp; _vfprogression[1]_
+- vfprogression.progression_schell2014()&nbsp; ----------- &nbsp;  progression analysis by schell et al. &nbsp; ----------- &nbsp; _vfprogression[1]_
+- vfprogression.progression_agis()&nbsp; ----------- &nbsp;  progression analysis by AGIS &nbsp; ----------- &nbsp; _vfprogression[1]_ </br></br> 
+- visualFields.glr() &nbsp; ----------- &nbsp;  Linear regression with global indices  &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.plr() &nbsp; ----------- &nbsp;  pointwise linear regression (PLR)  &nbsp; ----------- &nbsp; _visualFields[2]_  
+- visualFields.poplr() &nbsp; ----------- &nbsp;  PoPLR regression analysis  &nbsp; ----------- &nbsp; _visualFields[2]_ </br></br>
+- vfprogression.plotValues() &nbsp; ----------- &nbsp; plot/save VF values (s, td, pd) &nbsp; ----------- &nbsp; _vfprogression[1]_ 
+- vfprogression.plotProbabilities() ----------- &nbsp; plot/save tdp/pdp values (tdp, pdp) &nbsp; ----------- &nbsp; _vfprogression[1]_
+- visualFields.vfplot() ----------- &nbsp; plot/save s/td/pd/tds/pds values (s, td, pd) &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplot_s()  &nbsp; ----------- &nbsp; alias for vfplot(type='s') &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplot_td()  &nbsp; ----------- &nbsp; alias for vfplot(type='td') &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplot_pd() &nbsp; ----------- &nbsp; alias for vfplot(type='pd') &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplot_tds()  &nbsp; ----------- &nbsp; alias for vfplot(type='tds') (s, td, pd) &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplot_pds()  &nbsp; ----------- &nbsp; alias for vfplot(type='pds') (s, td, pd) &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.plotProbColormap() &nbsp; ----------- &nbsp; show colormap of probablies &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplotsparklines() &nbsp; ----------- &nbsp; plot/save sparklines (s, td, pd) &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplotsparklines_s()  &nbsp; ----------- &nbsp; alias for vfplotsparklines(type='s') &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplotsparklines_td() &nbsp; ----------- &nbsp; alias for vfplotsparklines(type='td') &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplotsparklines_pd() &nbsp; ----------- &nbsp; alias for vfplotsparklines(type='pd') &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vfplotplr() &nbsp; ----------- &nbsp; -- &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.vflegoplot() &nbsp; ----------- &nbsp; -- &nbsp; ----------- &nbsp; _visualFields[2]_ 
+- visualFields.vfsfa() &nbsp; ----------- &nbsp; Generates one-page report of single field analyses as a pdf file &nbsp; ----------- &nbsp; _visualFields[2]_  </br></br>
+- currentNV = visualFields.getnv() &nbsp; ----------- &nbsp; get current normative environment/setting (NV) &nbsp; ----------- &nbsp; _visualFields[2]_ 
+- visualFields.getallvalues() &nbsp; ----------- &nbsp; compute all td, pd, pdp, tdp, gl, gh,glp based on the current NV &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.gettd() &nbsp; ----------- &nbsp; alias for getallvalues only to compute td &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.getgl() &nbsp; ----------- &nbsp; alias for getallvalues only to compute gl &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.gettdp() &nbsp; ----------- &nbsp; alias for getallvalues only to compute tdp &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.getpd() &nbsp; ----------- &nbsp; alias for getallvalues only to compute pd &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.getgh() &nbsp; ----------- &nbsp; alias for getallvalues only to compute gh &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.getpdp() &nbsp; ----------- &nbsp; alias for getallvalues only to compute pdp &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.getglp() &nbsp; ----------- &nbsp; alias for getallvalues only to compute gi &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.get_info_normvals() &nbsp; ----------- &nbsp; Get all avialbale predefined normalization environments/settings &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.setnv() &nbsp; ----------- &nbsp; change/set normalization environment based on a predefined NV &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.nvgenerate &nbsp; ----------- &nbsp; generate a normalization environment based new data &nbsp; ----------- &nbsp; _visualFields[2]_
+
 
 

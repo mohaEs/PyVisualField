@@ -2,6 +2,9 @@
 
 If you have not installed any R or rpy2, or want to make a seperate environment with Anaconda, follow our intruction:
 
+### 0- Download/clone the GitHub repository
+[GitHub link](https://github.com/mohaEs/PyVisualField) 
+
 ### 1- create and activate a conda environment:
 
 > \> conda create --name env_pyVF python=3.8 </br>
@@ -45,15 +48,19 @@ install rpy2 </br>
 
 use _test_rpy2.py_ to verify the R and rpy2 installation.
 
-### 5- install require R packages
+### 5- install required R packages
 install required R packages with _install_R_packages.py_
 > (env_pyVF)\> python install_R_packages.py
 
 evaluate the installation with _test_Rpacks.py_
 
-and done </br>
+### 6- install required python packages
+> (env_pyVF)\> pip install -r requirements.txt
 
-but make sure to close the terminal and open a new one
-### 6- install every other packages do you need in the environment, e.g. jupyter
-> (env_pyVF)\> 
+### 7- install PyVisualFields
+if all above sections work properly, install the PyVisualFields Package:
+> (env_pyVF)\> pip install PyVisualFields
 
+
+### 8- install every other packages do you need in the environment, e.g. jupyter
+> (env_pyVF)\> ..
