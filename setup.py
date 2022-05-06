@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="PyVisualFields",
-    version="1.0.2",
+    version="1.0.3",
     author="Mohammad Eslami",
     author_email="Mohammad_eslami@meei.harvard.edu",
     description="A python toolkit for visual field analysis",
@@ -25,8 +25,8 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "PyVisualFields"},
-    packages=setuptools.find_packages(where="PyVisualFields"),
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src"),
     install_requires = ["tzlocal >= 3.0",
             "tzlocal >= 3.0",
             "scikit-image >= 0.18.1",

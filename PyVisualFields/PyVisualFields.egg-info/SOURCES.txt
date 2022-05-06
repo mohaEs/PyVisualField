@@ -1,9 +1,0 @@
-README.md
-license
-pyproject.toml
-setup.py
-PyVisualFields/PyVisualFields.egg-info/PKG-INFO
-PyVisualFields/PyVisualFields.egg-info/SOURCES.txt
-PyVisualFields/PyVisualFields.egg-info/dependency_links.txt
-PyVisualFields/PyVisualFields.egg-info/requires.txt
-PyVisualFields/PyVisualFields.egg-info/top_level.txt

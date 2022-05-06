@@ -1,0 +1,13 @@
+README.md
+license
+pyproject.toml
+setup.py
+src/PyVisualFields/__init__.py
+src/PyVisualFields/utils.py
+src/PyVisualFields/vfprogression.py
+src/PyVisualFields/visualFields.py
+src/PyVisualFields.egg-info/PKG-INFO
+src/PyVisualFields.egg-info/SOURCES.txt
+src/PyVisualFields.egg-info/dependency_links.txt
+src/PyVisualFields.egg-info/requires.txt
+src/PyVisualFields.egg-info/top_level.txt
