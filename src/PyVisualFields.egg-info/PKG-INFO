@@ -1,18 +1,16 @@
 Metadata-Version: 2.1
 Name: PyVisualFields
-Version: 1.0.3
+Version: 1.0.4
 Summary: A python toolkit for visual field analysis
 Home-page: https://github.com/mohaEs/PyVisualField
 Author: Mohammad Eslami
 Author-email: Mohammad_eslami@meei.harvard.edu
-License: UNKNOWN
 Project-URL: Bug Tracker, https://github.com/mohaEs/PyVisualField/issues
 Project-URL: Demo Normalization, https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Deviation_Analysis.ipynb
 Project-URL: Demo Plotting, https://github.com/mohaEs/PyVisualField/blob/main/demo_3_Plotting.ipynb
 Project-URL: Demo Analysis, https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Analysis.ipynb
 Project-URL: Demo Data, https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb
 Project-URL: Harvard Ophthalmology AI LAB, https://ophai.hms.harvard.edu/
-Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
@@ -123,6 +121,4 @@ The list and description of all functions are as follow. They are all examined a
 - visualFields.get_info_normvals() &nbsp; ----------- &nbsp; Get all avialbale predefined normalization environments/settings &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.setnv() &nbsp; ----------- &nbsp; change/set normalization environment based on a predefined NV &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.nvgenerate &nbsp; ----------- &nbsp; generate a normalization environment based new data &nbsp; ----------- &nbsp; _visualFields[2]_
-
-
 
