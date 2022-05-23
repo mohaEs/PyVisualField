@@ -207,7 +207,8 @@ def plotProbColormap(save=False, filename='tmp', fmt='pdf'):
     doc.close()
     
     im = plt.imread(output_fname)
-    plt.imshow(im)
+    plt.figure(figsize=(7, 7), dpi=100)
+    plt.imshow(im, interpolation='none', resample=False)
     plt.axis('off')     
     
   
