@@ -42,6 +42,10 @@ or this video [installation_video](https://youtu.be/_L9YWrtlOhY)
 ![](./imgs/img.jpg)
 
 
+## Notice:
+Functions based on _vfprogression_ package accept 24-2 or 30-2 visual field measurement while functions based on _visualFields_ also accept 10-2. 
+
+
 ## list of functions
 The list and description of all functions are as follow. They are all examined and introduced with examples in 4 different notebooks. It is important to mention that, based on the background R packages, the input VF dataframe needs to have columns with special column names. Make sure, to consider the data notebook. If further information is required, see the corresponding references: _vfprogression[1]_, _visualFields[2]_ </br>
 - Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
