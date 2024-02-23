@@ -8,6 +8,23 @@ https://pypi.org/project/PyVisualFields/
 
 We use the rpy2 as the python wrapper to use R in Python. Then, we define and prepare the methods to call the methods and data implemented and introduced in R packages vfprogression (by Elze et al. [1]) and visualFields (by Marin-Granch et al. [2]). We write these functions in python language and demonstrate their functionalities in four categories of presenting data, plotting, scoring and progression analysis, and normalization analysis. For each category, we provide the examples, description of each function, associated requirements, and the output of that function in Jupyter notebooks.
 
+## Citation
+If you found this package impactful for your research, please cite the following article: 
+
+Mohammad Eslami, Saber Kazeminasab, Vishal Sharma, Yangjiani Li, Mojtaba Fazli, Mengyu Wang, Nazlee Zebardast, Tobias Elze; PyVisualFields: A Python Package for Visual Field Analysis. Trans. Vis. Sci. Tech. 2023;12(2):6. https://doi.org/10.1167/tvst.12.2.6.
+
+@article{10.1167/tvst.12.2.6,
+    author = {Eslami, Mohammad and Kazeminasab, Saber and Sharma, Vishal and Li, Yangjiani and Fazli, Mojtaba and Wang, Mengyu and Zebardast, Nazlee and Elze, Tobias},
+    title = "{PyVisualFields: A Python Package for Visual Field Analysis}",
+    journal = {Translational Vision Science & Technology},
+    volume = {12},
+    number = {2},
+    year = {2023},    
+    issn = {2164-2591},
+    doi = {10.1167/tvst.12.2.6},        
+}
+
+
 
 ## Demo jupyter notebooks
 
