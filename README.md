@@ -13,19 +13,6 @@ If you found this package impactful for your research, please cite the following
 
 Mohammad Eslami, Saber Kazeminasab, Vishal Sharma, Yangjiani Li, Mojtaba Fazli, Mengyu Wang, Nazlee Zebardast, Tobias Elze; PyVisualFields: A Python Package for Visual Field Analysis. Trans. Vis. Sci. Tech. 2023;12(2):6. https://doi.org/10.1167/tvst.12.2.6.
 
-@article{10.1167/tvst.12.2.6,
-    author = {Eslami, Mohammad and Kazeminasab, Saber and Sharma, Vishal and Li, Yangjiani and Fazli, Mojtaba and Wang, Mengyu and Zebardast, Nazlee and Elze, Tobias},
-    title = "{PyVisualFields: A Python Package for Visual Field Analysis}",
-    journal = {Translational Vision Science & Technology},
-    volume = {12},
-    number = {2},
-    year = {2023},    
-    issn = {2164-2591},
-    doi = {10.1167/tvst.12.2.6},        
-}
-
-
-
 ## Demo jupyter notebooks
 
 The list and description of all functions are available at [All_Functions](#list-of-functions). They are all examined and introduced with examples in 4 different notebooks categorized: </br>
