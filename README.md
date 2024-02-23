@@ -10,8 +10,11 @@ We use the rpy2 as the python wrapper to use R in Python. Then, we define and pr
 
 ## Citation
 If you found this package impactful for your research, please cite the following article: 
+- Mohammad Eslami, Saber Kazeminasab, Vishal Sharma, Yangjiani Li, Mojtaba Fazli, Mengyu Wang, Nazlee Zebardast, Tobias Elze; PyVisualFields: A Python Package for Visual Field Analysis. Trans. Vis. Sci. Tech. 2023;12(2):6. https://doi.org/10.1167/tvst.12.2.6.
 
-Mohammad Eslami, Saber Kazeminasab, Vishal Sharma, Yangjiani Li, Mojtaba Fazli, Mengyu Wang, Nazlee Zebardast, Tobias Elze; PyVisualFields: A Python Package for Visual Field Analysis. Trans. Vis. Sci. Tech. 2023;12(2):6. https://doi.org/10.1167/tvst.12.2.6.
+and of course the corresponding sub-package:
+- vfprogression (by Elze et al. [1])
+- visualFields (by Marin-Granch et al. [2])
 
 ## Demo jupyter notebooks
 
