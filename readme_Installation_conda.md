@@ -22,7 +22,8 @@ example: </br>
 > (env_pyVF)\> R </br>
 > \> R.home() </br>
 [1] "C:/Users/mohae/anaconda3/envs/env_pyVF/lib/R" </br>
-so we have our path/to/R as "C:/Users/mohae/anaconda3/envs/env_pyVF/lib/R" </br>
+
+so now, we have our path/to/R as "C:/Users/mohae/anaconda3/envs/env_pyVF/lib/R" </br>
 copy the path and quit from R
 
 
