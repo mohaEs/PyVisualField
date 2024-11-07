@@ -49,6 +49,9 @@ install rpy2 </br>
 
 use _test_rpy2.py_ to verify the R and rpy2 installation.
 
+If experience difficulties in building the rpy2 setup, try conda direct approach:
+> conda install -c conda-forge rpy2
+
 ### 5- install required R packages
 install required R packages with _install_R_packages.py_
 > (env_pyVF)\> python install_R_packages.py
