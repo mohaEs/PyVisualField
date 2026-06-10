@@ -2,8 +2,6 @@ README.md
 license
 pyproject.toml
 setup.py
-src/PyVisualFields/Deviation_Analysis.py
-src/PyVisualFields/PyGlaucoMetrics.py
 src/PyVisualFields/__init__.py
 src/PyVisualFields/utils.py
 src/PyVisualFields/vfprogression.py

@@ -1,0 +1,14 @@
+{
+  "default_nv_key": "sunyiu_24d2",
+  "name_to_key": {
+    "SUNY-IU pointwise NVs for 24-2": "sunyiu_24d2_pw",
+    "SUNY-IU classic NVs for 24-2": "sunyiu_24d2",
+    "SUNY-IU pointwise NVs for 24-2 with a CPS": "sunyiu_24d2_pw_cps",
+    "SUNY-IU classic NVs for 24-2 with a CPS": "sunyiu_24d2_cps",
+    "Heijl 1987 classic NVs for 24-2": "heijl_1987",
+    "Iowa pointwise NVs for PC26": "iowa_PC26_pw",
+    "Iowa pointwise NVs for PC26 with a CPS": "iowa_PC26_pw_cps",
+    "Iowa pointwise NVs for Peri": "iowa_Peri_pw",
+    "Iowa pointwise NVs for Peri with a CPS": "iowa_Peri_pw_cps"
+  }
+}

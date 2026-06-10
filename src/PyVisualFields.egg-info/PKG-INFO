@@ -1,15 +1,16 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: PyVisualFields
-Version: 1.0.4
+Version: 2.0.0
 Summary: A python toolkit for visual field analysis
 Home-page: https://github.com/mohaEs/PyVisualField
-Author: Mohammad Eslami
+Author: Mohammad Eslami, Bharath Erusalagandi, Mousa Moradi
 Author-email: Mohammad_eslami@meei.harvard.edu
 Project-URL: Bug Tracker, https://github.com/mohaEs/PyVisualField/issues
 Project-URL: Demo Normalization, https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Deviation_Analysis.ipynb
 Project-URL: Demo Plotting, https://github.com/mohaEs/PyVisualField/blob/main/demo_3_Plotting.ipynb
-Project-URL: Demo Analysis, https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Analysis.ipynb
+Project-URL: Demo Prorgression Analysis, https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Analysis.ipynb
 Project-URL: Demo Data, https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb
+Project-URL: Demo Glaucoma Detection, https://github.com/mohaEs/PyVisualField/blob/main/demo5_PyGlaucoMetrics.ipynb
 Project-URL: Harvard Ophthalmology AI LAB, https://ophai.hms.harvard.edu/
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -17,6 +18,21 @@ Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: license
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scipy
+Requires-Dist: matplotlib
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
 
 # PyVisualFields 
 
@@ -26,8 +42,30 @@ This packages includes functions for visuald field analysis and display.
 
 https://pypi.org/project/PyVisualFields/
 
-We use the rpy2 as the python wrapper to use R in Python. Then, we define and prepare the methods to call the methods and data implemented and introduced in R packages vfprogression (by Elze et al. [1]) and visualFields (by Marin-Granch et al. [2]). We write these functions in python language and demonstrate their functionalities in four categories of presenting data, plotting, scoring and progression analysis, and normalization analysis. For each category, we provide the examples, description of each function, associated requirements, and the output of that function in Jupyter notebooks.
+Version 2 is R-independent while maintaining the original module organization. The modules are inspired by vfprogression (Elze et al. [1]) and visualFields (Marin-Franch et al. [2]). 
+Additionally, pyGlaucoMetric has been integrated to enable glaucoma classification based on visual field patterns.
 
+These functions are implemented in Python, and their functionalities are demonstrated across four primary categories:
+-     Data Presentation
+-     Plotting
+-     Scoring and Progression Analysis
+-     Normalization Analysis
+-     Glaucoma Detection
+
+For each category, we provide comprehensive Jupyter notebooks containing practical examples, detailed function descriptions, required inputs/dependencies, and expected outputs.
+
+## Citation
+If you found this package impactful for your research, please cite the following article: 
+- Mohammad Eslami, Saber Kazeminasab, Vishal Sharma, Yangjiani Li, Mojtaba Fazli, Mengyu Wang, Nazlee Zebardast, Tobias Elze; PyVisualFields: A Python Package for Visual Field Analysis. Trans. Vis. Sci. Tech. 2023;12(2):6. https://doi.org/10.1167/tvst.12.2.6.
+
+and of course the corresponding sub-package:
+- vfprogression (by Elze et al. [1])
+- visualFields (by Marin-Granch et al. [2])
+- pyGlaucoMetrics (by Moradi et al. [3])
+
+## Installation: 
+
+> pip install PyVisualFields
 
 ## Demo jupyter notebooks
 
@@ -35,39 +73,33 @@ The list and description of all functions are available at [All_Functions](#list
 - Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
 - Normalization and deviation analysis [demo_2_Deviation_Analysis.ipynb](demo_2_Deviation_Analysis.ipynb)
 - Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
-- Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+- Progression Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+- Glaucoma Detection [demo5_PyGlaucoMetrics.ipynb](demo5_PyGlaucoMetrics.ipynb) </br>
 
+__Notice:__ PyGlaucoMetric is also available as a seperatre PyPI package and GitHub repository (built upon PyVisualFields), which includes a graphical user interface (GUI) for progression analysis and glaucoma detection. Indeed PyVisualFields is designed as a developer-facing package library, while pyGlaucoMetric serves as an accessible GUI application implementing selected visual field analysis components.
+https://github.com/Mousamoradi/PyGlaucoMetrics
 
-
-## Installation: 
-This python package depends on 
-- R 
-- rpy2 python package
-- vfprogression R package
-- visualFields R package
-
-Make sure to install them before installing this PyVisualFields package:
-
-- If you want to create a seperate conda environment and install everything from scratch follow this guidline: [readme_Installation_conda.md](https://github.com/mohaEs/PyVisualField/blob/main/readme_Installation_conda.md)
-or this video [installation_video](https://youtu.be/_L9YWrtlOhY) 
-
-- If you have your preinstalled R or rpy2, follow the steps provided in our guideline: [readme_Installation.md](https://github.com/mohaEs/PyVisualField/blob/main/readme_Installation.md)
 
 ## references:
 [1] https://cran.r-project.org/web/packages/vfprogression/index.html </br>
-[2] https://cran.r-project.org/web/packages/visualFields/index.html 
-
+[2] https://cran.r-project.org/web/packages/visualFields/index.html </br>
+[3] Moradi, Mousa, Saber Kazeminasab Hashemabad, Daniel M. Vu, Allison R. Soneru, Asahi Fujita, Mengyu Wang, Tobias Elze, Mohammad Eslami, and Nazlee Zebardast. 2025. "PyGlaucoMetrics: A Stacked Weight-Based Machine Learning Approach for Glaucoma Detection Using Visual Field Data" Medicina 61, no. 3: 541. https://doi.org/10.3390/medicina61030541 
 </br>
-
-![](./imgs/img.jpg)
 
 
 ## list of functions
-The list and description of all functions are as follow. They are all examined and introduced with examples in 4 different notebooks. It is important to mention that, based on the background R packages, the input VF dataframe needs to have columns with special column names. Make sure, to consider the data notebook. If further information is required, see the corresponding references: _vfprogression[1]_, _visualFields[2]_ </br>
+The list and description of all functions are as follow. They are all examined and introduced with examples in 4 different notebooks. It is important to mention that, based on the background modules, the input VF dataframe needs to have columns with special column names. Make sure, to consider the data notebook. If further information is required, see the corresponding references: _vfprogression[1]_, _visualFields[2]_ </br>
 - Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
 - Normalization and deviation analysis [demo_2_Deviation_Analysis.ipynb](demo_2_Deviation_Analysis.ipynb)
 - Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
-- Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+- Progression Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+- Glaucoma Detection [demo5_PyGlaucoMetrics.ipynb](demo5_PyGlaucoMetrics.ipynb)
+</br>
+
+### Notice:
+Version 2 has been validated exclusively for the 24-2 format. Additionally, the system assumes all visual field measurements are provided in right eye (OD) format.
+
+Functions based on _vfprogression_ package accept 24-2 or 30-2 visual field measurement while functions based on _visualFields_ also accept 10-2. 
 
 </br>
 
@@ -120,5 +152,29 @@ The list and description of all functions are as follow. They are all examined a
 - visualFields.getglp() &nbsp; ----------- &nbsp; alias for getallvalues only to compute gi &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.get_info_normvals() &nbsp; ----------- &nbsp; Get all avialbale predefined normalization environments/settings &nbsp; ----------- &nbsp; _visualFields[2]_
 - visualFields.setnv() &nbsp; ----------- &nbsp; change/set normalization environment based on a predefined NV &nbsp; ----------- &nbsp; _visualFields[2]_
-- visualFields.nvgenerate &nbsp; ----------- &nbsp; generate a normalization environment based new data &nbsp; ----------- &nbsp; _visualFields[2]_
+- visualFields.nvgenerate &nbsp; ----------- &nbsp; generate a normalization environment based new data &nbsp; ----------- &nbsp; _visualFields[2]_</br></br>
+
+- PyGlaucoMetrics.Fn_HAP2 &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: HAP2 &nbsp; ----------- &nbsp; PyGlaucoMetrics[3]_
+- PyGlaucoMetrics.Fn_UKGTS &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: UKGTS &nbsp; ----------- &nbsp; PyGlaucoMetrics[3]_
+- PyGlaucoMetrics.Fn_LoGTS &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: LoGTS &nbsp; ----------- &nbsp; PyGlaucoMetrics[3]_
+- PyGlaucoMetrics.Fn_Foster &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: Foster &nbsp; ----------- &nbsp; PyGlaucoMetrics[3]_
+- PyGlaucoMetrics.Fn_Kangs &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: Kangs &nbsp; ----------- &nbsp; PyGlaucoMetrics[3]_
+
+
+
+## Snapshots
+
+
+<img src="./imgs/1_(12).png" width="50%">
+<img src="./imgs/1_(11).png" width="50%">
+<img src="./imgs/1_(1).png" width="50%">
+<img src="./imgs/1_(2).png" width="50%">
+<img src="./imgs/1_(3).png" width="50%">
+<img src="./imgs/1_(4).png" width="50%">
+<img src="./imgs/1_(5).png" width="50%">
+<img src="./imgs/1_(10).png" width="50%">
+<img src="./imgs/1_(6).png" width="50%">
+<img src="./imgs/1_(8).png" width="50%">
+<img src="./imgs/1_(14).png" width="50%">
+<img src="./imgs/1_(13).png" width="50%">
 

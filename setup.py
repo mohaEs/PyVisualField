@@ -5,8 +5,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="PyVisualFields",
-    version="1.0.4",
-    author="Mohammad Eslami",
+    version="2.0.0",
+    author="Mohammad Eslami, Bharath Erusalagandi, Mousa Moradi",
     author_email="Mohammad_eslami@meei.harvard.edu",
     description="A python toolkit for visual field analysis",
     long_description=long_description,
@@ -16,8 +16,9 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/mohaEs/PyVisualField/issues",
         "Demo Normalization": "https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Deviation_Analysis.ipynb",
         "Demo Plotting": "https://github.com/mohaEs/PyVisualField/blob/main/demo_3_Plotting.ipynb",
-        "Demo Analysis": "https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Analysis.ipynb",
+        "Demo Prorgression Analysis": "https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Analysis.ipynb",
         "Demo Data": "https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb",    
+        "Demo Glaucoma Detection": "https://github.com/mohaEs/PyVisualField/blob/main/demo5_PyGlaucoMetrics.ipynb",    
         "Harvard Ophthalmology AI LAB": "https://ophai.hms.harvard.edu/" 
     },
     classifiers=[
@@ -27,14 +28,11 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    install_requires = ["tzlocal >= 3.0",
-            "tzlocal >= 3.0",
-            "scikit-image >= 0.18.1",
-            "pandas >= 1.2.4",
-            "PyPDF2 >=  1.26.0",
-            "PyMuPDF >= 1.19.1",
-            "reportlab >=  3.6.2",
-            "matplotlib >= 3.3.4" ],
+    install_requires = [
+        "numpy",
+        "pandas",
+        "scipy",
+        "matplotlib",
+    ],
     python_requires=">=3.6",
 )
-

@@ -2,32 +2,21 @@
 """
 Created on Mon Oct 11 22:16:54 2021
 
-@author: Mohammad Eslami
+@author: Mohammad Eslami 
 Massachusetts Eye and Ear
 Harvard Medical School
-
-@contributor: Bharath Erusalagandi (Python implementation)
 """
 
 """
-this file contains required utilities
+this file contains required utilities in python
 """
-import os
+import os 
+import rpy2 
+
+# os.environ["R_HOME"] = 'C:\\Users\\mohae\\anaconda3\\envs\\env_VF\\Lib\\R'
+from rpy2.robjects.vectors import DataFrame, FloatVector, IntVector, StrVector, ListVector, Matrix
+#from rpy2_Matrix import Matrix
 import numpy
-
-# Optional rpy2.
-# If rpy2 is absent the R-type branches are simply unreachable.
-try:
-    from rpy2.robjects.vectors import (
-        DataFrame, FloatVector, IntVector, StrVector, ListVector, Matrix
-    )
-    _RPY2_TYPES_AVAILABLE = True
-except Exception:
-    # Define stub classes so type-checks in FnRecurList don't NameError.
-    class _Stub:
-        pass
-    DataFrame = FloatVector = IntVector = StrVector = ListVector = Matrix = _Stub
-    _RPY2_TYPES_AVAILABLE = False
 from collections import OrderedDict
 
 
@@ -90,7 +79,22 @@ def FnGetColumns(length):
     return columns
     
 
-
+# # convert R list to python dictionaty recurssively
+# def FnRecurList(data):
+#     rDictTypes = [ DataFrame,ListVector]
+#     rArrayTypes = [FloatVector,IntVector]
+#     rListTypes=[StrVector]
+#     if type(data) in rDictTypes:
+#         return OrderedDict(zip(data.names, [FnRecurList(elt) for elt in data]))
+#     elif type(data) in rListTypes:
+#         return [FnRecurList(elt) for elt in data]
+#     elif type(data) in rArrayTypes:
+#         return numpy.array(data)
+#     else:
+#         if hasattr(data, "rclass"): # An unsupported r class
+#             raise KeyError('Could not proceed, type {} is not defined'.format(type(data)))
+#         else:
+#             return data # We reached the end of recursion
         
         
 def FnRecurList(data):
