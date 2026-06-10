@@ -111,35 +111,60 @@ _VF_PROB_SCHEME = [
     (1.001, '#00441B', '#00441B', 'white'),
 ]
 
-_R_COLMAP = [
-    (0.000, '#000000'),
-    (0.005, '#800026'),
-    (0.010, '#BD0026'),
-    (0.020, '#FD8D3C'),
-    (0.050, '#FED976'),
-    (0.950, '#F7F0EB'),
-    (0.980, '#41AE76'),
-    (0.990, '#238B45'),
-    (0.995, '#006D2C'),
-    (1.001, '#00441B'),
-]
+# _R_COLMAP = [
+#     (0.000, '#000000'),
+#     (0.005, '#800026'),
+#     (0.010, '#BD0026'),
+#     (0.020, '#FD8D3C'),
+#     (0.050, '#FED976'),
+#     (0.950, '#F7F0EB'),
+#     (0.980, '#41AE76'),
+#     (0.990, '#238B45'),
+#     (0.995, '#006D2C'),
+#     (1.001, '#00441B'),
+# ]
+
 _R_SENS_MAX = 35.0
 
 
-def _r_prob_color(p, sensitivity=None):
-    """Probability value → hex fill color. Sensitivity < 0 forces black."""
-    color = '#F7F0EB'
-    try:
-        if not np.isnan(p):
-            for thresh, col in _R_COLMAP:
-                if p <= thresh:
-                    color = col
-                    break
-    except (TypeError, ValueError):
-        pass
-    if sensitivity is not None and np.isfinite(float(sensitivity)) and float(sensitivity) < 0.0:
-        color = '#000000'
-    return color
+# def _r_prob_color(p, sensitivity=None):
+#     """Probability value → hex fill color. Sensitivity < 0 forces black."""
+#     color = '#F7F0EB'
+#     try:
+#         if not np.isnan(p):
+#             for thresh, col in _R_COLMAP:
+#                 if p <= thresh:
+#                     color = col
+#                     break
+#     except (TypeError, ValueError):
+#         pass
+#     if sensitivity is not None and np.isfinite(float(sensitivity)) and float(sensitivity) < 0.0:
+#         color = '#000000'
+#     return color
+
+
+# def _r_prob_color(p, sensitivity=None):
+
+#     if sensitivity is not None:
+#         if np.isfinite(float(sensitivity)) and float(sensitivity) < 0:
+#             return "#111111"
+
+#     if np.isnan(p):
+#         return "#EBEBEB"
+
+#     if p <= 0.005:
+#         return "#111111"      # p<0.5%
+#     elif p <= 0.01:
+#         return "#8B0000"      # p<1%
+#     elif p <= 0.02:
+#         return "#E65F10"      # p<2%
+#     elif p <= 0.05:
+#         return "#E8B322"      # p<5%
+#     elif p >= 0.95:
+#         return "#1D8514"      # above normal
+#     else:
+#         return "#EBEBEB"      # normal
+
 
 
 def _r_sens_gray(v):
@@ -310,11 +335,11 @@ def _probability_cell_style(p_val, scheme="10"):
         elif p_val <= 0.01:
             return "#8B0000", "#8B0000", "white", 2.5
         elif p_val <= 0.02:
-            return "#C41E1E", "#C41E1E", "white", 2.0
+            return "#EB520B", "#EB520B", "white", 2.0
         elif p_val <= 0.05:
-            return "#E87722", "#E87722", "black", 2.0
+            return "#E8A322", "#E8A322", "black", 2.0
         elif p_val >= 0.95:
-            return "#EBEBEB", "#1A7A1A", "black", 2.5  # above-normal green border
+            return "#EBEBEB", "#BBBBBB", "black", 2.5  # above-normal green border
         else:
             return "#EBEBEB", "#BBBBBB", "black", 1.0  # normal — plain gray
     else:  # scheme == '10' (default)
@@ -459,11 +484,12 @@ def _draw_probability_colorbar(ax, y=-1.15):
     legend_items = [
         ("p<0.5%",  "#111111", "#111111", "white"),
         ("p<1%",   "#8B0000", "#8B0000", "white"),
-        ("p<2%",   "#C41E1E", "#C41E1E", "white"),
-        ("p<5%",   "#E87722", "#E87722", "black"),
+        ("p<2%",   "#EB520B", "#EB520B", "white"),
+        ("p<5%",   "#E8A322", "#E8A322", "black"),
         ("normal", "#EBEBEB", "#BBBBBB", "black"),
-        ("p≥95%",  "#EBEBEB", "#1A7A1A", "black"),
+        ("p≥95%",  "#EBEBEB", "#BBBBBB", "black"),
     ]
+
     n = len(legend_items)
     total_w = 9.0
     width = total_w / n
@@ -724,12 +750,22 @@ def _vf_devborder_plot(dev_vals, probs, sens_vals, title='', ax=None, figsize=(7
 
         p = prbs[i] if i < len(prbs) else np.nan
         s = sens[i] if i < len(sens) else np.nan
-        outer_col = _r_prob_color(p, sensitivity=s)
+        # outer_col = _r_prob_color(p, sensitivity=s)
+
+        # ax.add_patch(mpatches.Rectangle(
+        #     (c - outer_half, y - outer_half), 2 * outer_half, 2 * outer_half,
+        #     facecolor=outer_col, edgecolor='none'
+        # ))
+
+        facecolor, edgecolor, text_color, lw = _probability_cell_style(p, scheme="5")
 
         ax.add_patch(mpatches.Rectangle(
             (c - outer_half, y - outer_half), 2 * outer_half, 2 * outer_half,
-            facecolor=outer_col, edgecolor='none'
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            linewidth=lw
         ))
+
         ax.add_patch(mpatches.Rectangle(
             (c - inner_half, y - inner_half), 2 * inner_half, 2 * inner_half,
             facecolor='#F7F0EB', edgecolor='none'
@@ -777,17 +813,39 @@ def _vf_sdevborder_plot(dev_vals, probs, sens_vals, title='', ax=None, figsize=(
         if i >= len(devs) or np.isnan(devs[i]):
             continue
 
+        # p = prbs[i] if i < len(prbs) else np.nan
+        # s = sens[i] if i < len(sens) else np.nan
+        # outer_col = _r_prob_color(p, sensitivity=s)
+        # g = _r_sens_gray(s)
+        # inner_col = _gray_hex(g)
+        # text_col = '#4D4D4D' if g >= 0.5 else '#B3B3B3'
+
+        # ax.add_patch(mpatches.Rectangle(
+        #     (c - outer_half, y - outer_half), 2 * outer_half, 2 * outer_half,
+        #     facecolor=outer_col, edgecolor='none'
+        # ))
+
         p = prbs[i] if i < len(prbs) else np.nan
         s = sens[i] if i < len(sens) else np.nan
-        outer_col = _r_prob_color(p, sensitivity=s)
+
+        facecolor, edgecolor, _, lw = _probability_cell_style(
+            p,
+            scheme="5"
+        )
+
         g = _r_sens_gray(s)
         inner_col = _gray_hex(g)
         text_col = '#4D4D4D' if g >= 0.5 else '#B3B3B3'
 
         ax.add_patch(mpatches.Rectangle(
-            (c - outer_half, y - outer_half), 2 * outer_half, 2 * outer_half,
-            facecolor=outer_col, edgecolor='none'
+            (c - outer_half, y - outer_half),
+            2 * outer_half,
+            2 * outer_half,
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            linewidth=lw
         ))
+
         ax.add_patch(mpatches.Rectangle(
             (c - inner_half, y - inner_half), 2 * inner_half, 2 * inner_half,
             facecolor=inner_col, edgecolor='none'
@@ -1055,8 +1113,15 @@ def vflegoplot(df_vf_py, type='s', grp=3, save=False, filename='tmp', fmt='pdf')
         sens_l = _expand_24d2_values(sens_l_arr)
         diff = dev_l - dev_b
 
-        def _bg(i): return _r_prob_color(prob_b[i], sensitivity=sens_b[i])
-        def _fg(i): return _r_prob_color(prob_l[i], sensitivity=sens_l[i])
+        def _prob_fill(p, s=None):
+            if s is not None and np.isfinite(float(s)) and float(s) < 0:
+                return "#111111"
+
+            fc, ec, tc, lw = _probability_cell_style(p, scheme="5")
+            return fc
+
+        def _bg(i): return _prob_fill(prob_b[i], sens_b[i])
+        def _fg(i): return _prob_fill(prob_l[i], sens_l[i])
         def _tc(i): return '#4D4D4D' if _hex_luminance(_fg(i)) >= 0.4 else '#B3B3B3'
 
     else:
