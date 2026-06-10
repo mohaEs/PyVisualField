@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: PyVisualFields
-Version: 2.0.2
+Version: 2.0.3
 Summary: A python toolkit for visual field analysis
 Home-page: https://github.com/mohaEs/PyVisualField
 Author: Mohammad Eslami, Bharath Erusalagandi, Mousa Moradi
@@ -17,7 +17,6 @@ Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
-License-File: license
 Requires-Dist: numpy
 Requires-Dist: pandas
 Requires-Dist: scipy
@@ -28,7 +27,6 @@ Dynamic: classifier
 Dynamic: description
 Dynamic: description-content-type
 Dynamic: home-page
-Dynamic: license-file
 Dynamic: project-url
 Dynamic: requires-dist
 Dynamic: requires-python
