@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="PyVisualFields",
-    version="2.0.0",
+    version="2.0.2",
     author="Mohammad Eslami, Bharath Erusalagandi, Mousa Moradi",
     author_email="Mohammad_eslami@meei.harvard.edu",
     description="A python toolkit for visual field analysis",
@@ -28,6 +28,13 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
+    include_package_data=True,
+    package_data={
+        "PyVisualFields": [
+            "pkl_files/*.pkl",
+            "pkl_files/*.json",
+        ],
+    },
     install_requires = [
         "numpy",
         "pandas",
