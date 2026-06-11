@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas
 
-from PyVisualFields.utils import FnGetColumns
+from PyVisualFields.utils import canonicalize_vf_df, canonicalize_vf_row
 
 # Optional R bridge.
 try:
@@ -353,6 +353,10 @@ def progression_cigts(df_VFs_py):
 
     Reference: Musch et al. (1999); Gillespie et al. (2003)
     """
+
+    df_VFs_py = canonicalize_vf_df(df_VFs_py, 
+                                   sort_by_date=True)
+
     if 'eyeid' not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
         df_VFs_py['eyeid'] = 1
@@ -453,6 +457,13 @@ def progression_plrnouri2012(df_VFs_py):
 
     Reference: Nouri-Mahdavi et al. (2012), doi:10.1016/j.ophtha.2011.08.033
     """
+
+
+    df_VFs_py = canonicalize_vf_df(
+        df_VFs_py,    
+        sort_by_date=True,
+    )
+
     if "eyeid" not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
         df_VFs_py["eyeid"] = 1
@@ -514,6 +525,12 @@ def progression_vfi(df_VFs_py):
 
     Reference: Aptel et al. (2015), PMID 26095771; Bengtsson & Heijl (2008)
     """
+
+    df_VFs_py = canonicalize_vf_df(
+        df_VFs_py,    
+        sort_by_date=True,
+    )
+
     if "eyeid" not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
         df_VFs_py["eyeid"] = 1
@@ -592,6 +609,12 @@ def progression_schell2014(df_VFs_py):
 
     Reference: Schell et al. (2014), doi:10.1016/j.ophtha.2014.02.021
     """
+
+    df_VFs_py = canonicalize_vf_df(
+        df_VFs_py,        
+        sort_by_date=True,
+    )
+
     if "eyeid" not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
         df_VFs_py["eyeid"] = 1
@@ -671,6 +694,12 @@ def progression_agis(df_VFs_py):
 
     Reference: Rabiolo et al. (2019), Translational Vision Science & Technology, 8(5).
     """
+
+    df_VFs_py = canonicalize_vf_df(
+        df_VFs_py,
+        sort_by_date=True, 
+    )
+
     if 'eyeid' not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
         df_VFs_py['eyeid'] = 1
@@ -887,6 +916,9 @@ def get_score_AGIS(df_VF_py):
     int
         AGIS score.
     """
+    
+    df_VF_py = canonicalize_vf_row(df_VF_py)  
+    
     if isinstance(df_VF_py, pandas.core.series.Series):
         df_VF_py = pandas.DataFrame(df_VF_py).transpose()
 
@@ -986,6 +1018,13 @@ def get_score_CIGTS(df_VF_py):
     float
         CIGTS score.
     """
+
+    # df_VF_py = canonicalize_vf_df(
+    #     df_VF_py        
+    # )
+
+    df_VF_py = canonicalize_vf_row(df_VF_py)  # Ensure column names are standardized (e.g., tdp1, tdp2, ...)
+
     if isinstance(df_VF_py, pandas.core.series.Series):
         df_VF_py = pandas.DataFrame(df_VF_py).transpose()
 

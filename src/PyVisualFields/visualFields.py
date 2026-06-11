@@ -28,6 +28,9 @@ import pandas as pd
 from scipy.stats import t as _student_t       # Student-t CDF, matches R's pt()
 from scipy.stats import rankdata as _rankdata  # average-tie ranks, matches R rank()
 
+from PyVisualFields.utils import canonicalize_vf_df, canonicalize_vf_row
+
+
 from PyVisualFields.Deviation_Analysis import (
     py_getnv, py_setnv, py_setdefaults, py_normvals, py_get_info_normvals,
     py_nvgenerate, py_setnv_custom,
@@ -37,15 +40,6 @@ from PyVisualFields.Deviation_Analysis import (
 
 
 
-
-
-
-
-
-
-'''  ###########################
-Utils
-'''
 
 
 '''  ###########################
@@ -214,23 +208,14 @@ def _expand_24d2_values(values):
 
 def _get_sensitivity_cols(df):
     """Return ordered list of visual-field sensitivity columns."""
-    for prefix in ('l', 's', 'p', 'sens', 'vf'):
+    for prefix in ('l'):
         cols = sorted(
             [c for c in df.columns if c.startswith(prefix) and c[len(prefix):].isdigit()],
             key=lambda x: int(x[len(prefix):]),
         )
         if len(cols) >= 52:
             return cols
-    cols = sorted(
-        [
-            c for c in df.columns
-            if c[-1].isdigit() and c.rstrip('0123456789') not in
-            ('age', 'date', 'id', 'eye', 'time', 'fpr', 'fnr', 'fl', 'duration', 'eyeid', 'patientid')
-        ],
-        key=lambda x: int(x.lstrip('abcdefghijklmnopqrstuvwxyz')),
-    )
-    return cols
-
+    return []   
 
 def _sort_vf_dataframe(df_vf_py):
     """Return a copy sorted by date when a date column is present."""
@@ -293,10 +278,16 @@ def _nanmean_columns(data):
     np.divide(sums, counts, out=out, where=counts > 0)
     return out
 
+# def _compute_missed_deviations(df_vf_py):
+
+
+
+#     return []
+
 
 def _compute_plot_dataframes(df_vf_py):
     """Compute canonical VF and derived TD/PD/probability/global-index dataframes."""
-    df_vf, vf_cols = _canonicalize_vf_dataframe(df_vf_py)
+    df_vf, vf_cols = _canonicalize_vf_dataframe(df_vf_py)  
     df_td = py_gettd(df_vf)
     df_pd = py_getpd(df_td)
     df_tdp = py_gettdp(df_td)
@@ -896,8 +887,13 @@ def plotProbColormap(save=False, filename="tmp", fmt="pdf"):
     plt.close(fig)
 
 
+
+
 def vfplot(df_vf_py, type="s", title="", save=False, filename="tmp", fmt="pdf", show_colorbar=True):
     """Plot a single visual field using the active Deviation_Analysis NV setting."""
+    
+    #df_vf_py = canonicalize_vf_row(df_vf_py) 
+    df_vf_py = canonicalize_vf_df(df_vf_py)
     df_vf, vf_cols, df_td, df_pd, df_tdp, df_pdp, _ = _compute_plot_dataframes(
         df_vf_py.head(1)
     )
