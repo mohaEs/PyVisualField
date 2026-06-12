@@ -28,18 +28,24 @@ import pandas as pd
 from scipy.stats import t as _student_t       # Student-t CDF, matches R's pt()
 from scipy.stats import rankdata as _rankdata  # average-tie ranks, matches R rank()
 
-from PyVisualFields.utils import canonicalize_vf_df, canonicalize_vf_row
-
-
 from PyVisualFields.Deviation_Analysis import (
     py_getnv, py_setnv, py_setdefaults, py_normvals, py_get_info_normvals,
     py_nvgenerate, py_setnv_custom,
     py_gettd, py_getgh, py_getpd, py_gettdp, py_getpdp,
-    py_getgl, py_getglp, py_getallvalues,
+    py_getgl, py_getglp, py_getallvalues,_get_point_cols, _get_vf_cols
 )
 
 
 
+
+
+
+
+
+
+'''  ###########################
+Utils
+'''
 
 
 '''  ###########################
@@ -208,14 +214,23 @@ def _expand_24d2_values(values):
 
 def _get_sensitivity_cols(df):
     """Return ordered list of visual-field sensitivity columns."""
-    for prefix in ('l'):
+    for prefix in ('l', 's', 'p', 'sens', 'vf'):
         cols = sorted(
             [c for c in df.columns if c.startswith(prefix) and c[len(prefix):].isdigit()],
             key=lambda x: int(x[len(prefix):]),
         )
         if len(cols) >= 52:
             return cols
-    return []   
+    cols = sorted(
+        [
+            c for c in df.columns
+            if c[-1].isdigit() and c.rstrip('0123456789') not in
+            ('age', 'date', 'id', 'eye', 'time', 'fpr', 'fnr', 'fl', 'duration', 'eyeid', 'patientid')
+        ],
+        key=lambda x: int(x.lstrip('abcdefghijklmnopqrstuvwxyz')),
+    )
+    return cols
+
 
 def _sort_vf_dataframe(df_vf_py):
     """Return a copy sorted by date when a date column is present."""
@@ -278,16 +293,10 @@ def _nanmean_columns(data):
     np.divide(sums, counts, out=out, where=counts > 0)
     return out
 
-# def _compute_missed_deviations(df_vf_py):
-
-
-
-#     return []
-
 
 def _compute_plot_dataframes(df_vf_py):
     """Compute canonical VF and derived TD/PD/probability/global-index dataframes."""
-    df_vf, vf_cols = _canonicalize_vf_dataframe(df_vf_py)  
+    df_vf, vf_cols = _canonicalize_vf_dataframe(df_vf_py)
     df_td = py_gettd(df_vf)
     df_pd = py_getpd(df_td)
     df_tdp = py_gettdp(df_td)
@@ -888,20 +897,25 @@ def plotProbColormap(save=False, filename="tmp", fmt="pdf"):
 
 
 
-
-def vfplot(df_vf_py, type="s", title="", save=False, filename="tmp", fmt="pdf", show_colorbar=True):
+def vfplot(df_vf, type="s", title="", save=False, filename="tmp", fmt="pdf", 
+           show_colorbar=True, show=True):
     """Plot a single visual field using the active Deviation_Analysis NV setting."""
+    # df_vf, vf_cols, df_td, df_pd, df_tdp, df_pdp, _ = _compute_plot_dataframes(
+    #     df_vf_py.head(1)
+    # )
     
-    #df_vf_py = canonicalize_vf_row(df_vf_py) 
-    df_vf_py = canonicalize_vf_df(df_vf_py)
-    df_vf, vf_cols, df_td, df_pd, df_tdp, df_pdp, _ = _compute_plot_dataframes(
-        df_vf_py.head(1)
-    )
-    sens = _row_to_array(df_vf.iloc[0], vf_cols)
-    td = _row_to_array(df_td.iloc[0], vf_cols)
-    pd_vals = _row_to_array(df_pd.iloc[0], vf_cols)
-    tdp = _row_to_array(df_tdp.iloc[0], vf_cols)
-    pdp = _row_to_array(df_pdp.iloc[0], vf_cols)
+    sensCols  = _get_vf_cols(df_vf, colname='l')
+    tdCols  = _get_vf_cols(df_vf, colname='td')
+    pdCols  = _get_vf_cols(df_vf, colname='pd')
+    tdpCols  = _get_vf_cols(df_vf, colname='tdp')
+    pdpCols  = _get_vf_cols(df_vf, colname='pdp')
+    
+    
+    sens = _row_to_array(df_vf.iloc[0], sensCols)
+    td = _row_to_array(df_vf.iloc[0], tdCols)
+    pd_vals = _row_to_array(df_vf.iloc[0], pdCols)
+    tdp = _row_to_array(df_vf.iloc[0], tdpCols)
+    pdp = _row_to_array(df_vf.iloc[0], pdpCols)
     
 
     if type == "s":
@@ -918,32 +932,32 @@ def vfplot(df_vf_py, type="s", title="", save=False, filename="tmp", fmt="pdf", 
         raise ValueError(f"Unknown plot type: {type}")
 
     _save_plot(fig, save=save, filename=filename, fmt=fmt)
-    
-    plt.show()
+    if show:
+        plt.show()
     plt.close(fig)
 
 
-def vfplot_s(df_vf_py, title="", save=False, filename='tmp', fmt='pdf'):
-    vfplot(df_vf_py, type='s', title=title, save=save, filename=filename, fmt=fmt)
+def vfplot_s(df_vf_py, title="", save=False, filename='tmp', fmt='pdf', show=True):
+    vfplot(df_vf_py, type='s', title=title, save=save, filename=filename, fmt=fmt, show=show)
 
 
-def vfplot_td(df_vf_py, title="", save=False, filename='tmp', fmt='pdf'):
-    vfplot(df_vf_py, type='td', title=title, save=save, filename=filename, fmt=fmt)
+def vfplot_td(df_vf_py, title="", save=False, filename='tmp', fmt='pdf', show=True):
+    vfplot(df_vf_py, type='td', title=title, save=save, filename=filename, fmt=fmt, show=show)
 
 
-def vfplot_pd(df_vf_py, title="", save=False, filename='tmp', fmt='pdf'):
-    vfplot(df_vf_py, type='pd', title=title, save=save, filename=filename, fmt=fmt)
+def vfplot_pd(df_vf_py, title="", save=False, filename='tmp', fmt='pdf', show=True):
+    vfplot(df_vf_py, type='pd', title=title, save=save, filename=filename, fmt=fmt, show=show)
 
 
-def vfplot_tds(df_vf_py, title="", save=False, filename='tmp', fmt='pdf'):
-    vfplot(df_vf_py, type='tds', title=title, save=save, filename=filename, fmt=fmt)
+def vfplot_tds(df_vf_py, title="", save=False, filename='tmp', fmt='pdf', show=True):
+    vfplot(df_vf_py, type='tds', title=title, save=save, filename=filename, fmt=fmt, show=show)
 
 
-def vfplot_pds(df_vf_py, title="", save=False, filename='tmp', fmt='pdf'):
-    vfplot(df_vf_py, type='pds', title=title, save=save, filename=filename, fmt=fmt)
+def vfplot_pds(df_vf_py, title="", save=False, filename='tmp', fmt='pdf', show=True):
+    vfplot(df_vf_py, type='pds', title=title, save=save, filename=filename, fmt=fmt, show=show)
 
 
-def vfplotsparklines(df_vf_py, type='s', save=False, filename='tmp', fmt='pdf'):
+def vfplotsparklines(df_vf, type='s', save=False, filename='tmp', fmt='pdf'):
     """Per-location trend lines ("sparklines") over the visit series.
 
     Each cell of the 24-2 grid shows that location's value across all visits
@@ -951,13 +965,22 @@ def vfplotsparklines(df_vf_py, type='s', save=False, filename='tmp', fmt='pdf'):
     and black otherwise, so a cluster of red sparklines marks an area that is
     deteriorating over time. ``type`` selects 's' (sensitivity), 'td' or 'pd'.
     """
-    df_vf, vf_cols, df_td, df_pd, _, _, _ = _compute_plot_dataframes(df_vf_py)
+    #df_vf, vf_cols, df_td, df_pd, _, _, _ = _compute_plot_dataframes(df_vf_py)
+
+
+    sensCols  = _get_vf_cols(df_vf, colname='l')
+    tdCols  = _get_vf_cols(df_vf, colname='td')
+    pdCols  = _get_vf_cols(df_vf, colname='pd')
+    tdpCols  = _get_vf_cols(df_vf, colname='tdp')
+    pdpCols  = _get_vf_cols(df_vf, colname='pdp')
+
+
     if type == 's':
-        data = _matrix_from_df(df_vf, vf_cols)
+        data = _matrix_from_df(df_vf, sensCols)
     elif type == 'td':
-        data = _matrix_from_df(df_td, vf_cols)
+        data = _matrix_from_df(df_vf, tdCols)
     elif type == 'pd':
-        data = _matrix_from_df(df_pd, vf_cols)
+        data = _matrix_from_df(df_vf, pdCols)
     else:
         raise ValueError(f'Unknown sparkline type: {type}')
 
@@ -1053,75 +1076,196 @@ def vfplotplr_pd(df_vf_py, save=False, filename='tmp', fmt='pdf'):
     vfplotplr(df_vf_py, type='pd', save=save, filename=filename, fmt=fmt)
 
 
-def vflegoplot(df_vf_py, type='s', grp=3, save=False, filename='tmp', fmt='pdf'):
-    """Lego plot of change between the start and end of a VF series.
+# def vflegoplot(df_vf_py, type='s', grp=3, save=False, filename='tmp', fmt='pdf'):
+#     """Lego plot of change between the start and end of a VF series.
 
-    For each location on the 24-2 grid the tile is coloured by the baseline value
-    (mean of the first ``grp`` visits), the circle on top by the follow-up value
-    (mean of the last ``grp`` visits), and the centre text gives the change
-    (follow-up minus baseline). A darker circle than its tile with a large
-    negative number marks a location that has worsened. ``type`` selects 's',
-    'td' or 'pd'.
+#     For each location on the 24-2 grid the tile is coloured by the baseline value
+#     (mean of the first ``grp`` visits), the circle on top by the follow-up value
+#     (mean of the last ``grp`` visits), and the centre text gives the change
+#     (follow-up minus baseline). A darker circle than its tile with a large
+#     negative number marks a location that has worsened. ``type`` selects 's',
+#     'td' or 'pd'.
+#     """
+#     df_vf, vf_cols = _canonicalize_vf_dataframe(df_vf_py)
+
+#     nvisits = len(df_vf)
+#     thr = min(grp, nvisits)
+
+#     sens_mat = _matrix_from_df(df_vf, vf_cols)
+#     sens_b_arr = _nanmean_columns(sens_mat[:thr])
+#     sens_l_arr = _nanmean_columns(sens_mat[-thr:])
+
+#     def _mean_df(sens_arr):
+#         row = {c: df_vf[c].iloc[0] for c in df_vf.columns if c not in vf_cols}
+#         for j, col in enumerate(vf_cols):
+#             row[col] = float(sens_arr[j]) if j < len(sens_arr) and np.isfinite(sens_arr[j]) else np.nan
+#         return pd.DataFrame([row])[list(df_vf.columns)]
+
+#     if type == 's':
+#         sens_b = _expand_24d2_values(sens_b_arr)
+#         sens_l = _expand_24d2_values(sens_l_arr)
+#         diff = sens_l - sens_b
+
+#         def _bg(i): return _gray_hex(_r_sens_gray(sens_b[i]))
+#         def _fg(i): return _gray_hex(_r_sens_gray(sens_l[i]))
+#         def _tc(i): return '#4D4D4D' if _r_sens_gray(sens_l[i]) >= 0.5 else '#B3B3B3'
+
+#     elif type in ('td', 'pd'):
+#         df_b = _mean_df(sens_b_arr)
+#         df_l = _mean_df(sens_l_arr)
+
+#         if type == 'td':
+#             dev_b_df = py_gettd(df_b)
+#             dev_l_df = py_gettd(df_l)
+#             prob_b_df = py_gettdp(dev_b_df)
+#             prob_l_df = py_gettdp(dev_l_df)
+#         else:
+#             dev_b_df = py_getpd(py_gettd(df_b))
+#             dev_l_df = py_getpd(py_gettd(df_l))
+#             prob_b_df = py_getpdp(dev_b_df)
+#             prob_l_df = py_getpdp(dev_l_df)
+
+#         dev_b  = _expand_24d2_values(_row_to_array(dev_b_df.iloc[0],  vf_cols))
+#         dev_l  = _expand_24d2_values(_row_to_array(dev_l_df.iloc[0],  vf_cols))
+#         prob_b = _expand_24d2_values(_row_to_array(prob_b_df.iloc[0], vf_cols))
+#         prob_l = _expand_24d2_values(_row_to_array(prob_l_df.iloc[0], vf_cols))
+#         sens_b = _expand_24d2_values(sens_b_arr)
+#         sens_l = _expand_24d2_values(sens_l_arr)
+#         diff = dev_l - dev_b
+
+#         def _prob_fill(p, s=None):
+#             if s is not None and np.isfinite(float(s)) and float(s) < 0:
+#                 return "#111111"
+
+#             fc, ec, tc, lw = _probability_cell_style(p, scheme="5")
+#             return fc
+
+#         def _bg(i): return _prob_fill(prob_b[i], sens_b[i])
+#         def _fg(i): return _prob_fill(prob_l[i], sens_l[i])
+#         def _tc(i): return '#4D4D4D' if _hex_luminance(_fg(i)) >= 0.4 else '#B3B3B3'
+
+#     else:
+#         raise ValueError(f'Unknown lego type: {type}')
+
+#     fig, ax = plt.subplots(figsize=(7, 6))
+#     drew_bs = False
+#     half, crad = 0.43, 0.30
+
+#     for i, pos in enumerate(_GRID_24D2):
+#         if pos is None:
+#             if not drew_bs:
+#                 _draw_r_blind_spot(ax)
+#                 drew_bs = True
+#             continue
+#         c, r = pos
+#         y = 7 - r
+#         if i >= len(diff) or np.isnan(diff[i]):
+#             continue
+
+#         ax.add_patch(mpatches.Rectangle(
+#             (c - half, y - half), 2 * half, 2 * half,
+#             facecolor=_bg(i), edgecolor='none'
+#         ))
+#         ax.add_patch(mpatches.Circle(
+#             (c, y), radius=crad, facecolor=_fg(i), edgecolor='none', zorder=2
+#         ))
+#         d_r = round(diff[i], 1)
+#         txt = str(int(d_r)) if d_r == int(d_r) else f'{d_r:.1f}'
+#         # bold for readability on dark tiles
+#         ax.text(c, y, txt, ha='center', va='center', fontsize=7,
+#                 fontweight='bold', color=_tc(i), zorder=3)
+
+#     ax.set_xlim(-0.6, 8.6)
+#     ax.set_ylim(-0.6, 7.6)
+#     ax.set_aspect('equal')
+#     ax.axis('off')
+#     ax.set_title(f'Lego plot ({type})', fontsize=10)
+#     plt.tight_layout()
+#     _save_plot(fig, save=save, filename=filename, fmt=fmt)
+#     plt.show()
+#     plt.close(fig)
+
+
+def vflegoplot(df_vf, type='s', grp=3, save=False, filename='tmp', fmt='pdf'):
     """
-    df_vf, vf_cols = _canonicalize_vf_dataframe(df_vf_py)
+    Lego plot of change between the start and end of a VF series.
+
+    Assumes df_vf is already canonicalized and contains all needed blocks:
+        l1-l54, td1-td54, pd1-pd54, tdp1-tdp54, pdp1-pdp54
+    """
+
+    type = type.lower()
+
+    if type in ("s", "sens", "sensitivity"):
+        value_prefix = "l"
+        prob_prefix = None
+    elif type == "td":
+        value_prefix = "td"
+        prob_prefix = "tdp"
+    elif type == "pd":
+        value_prefix = "pd"
+        prob_prefix = "pdp"
+    else:
+        raise ValueError("type must be one of: 's', 'sens', 'td', 'pd'")
+
+    value_cols = _get_point_cols(df_vf, value_prefix)
+
+    if len(value_cols) < 52:
+        raise ValueError(f"Missing block: {value_prefix}1-{value_prefix}54")
+
     nvisits = len(df_vf)
     thr = min(grp, nvisits)
 
-    sens_mat = _matrix_from_df(df_vf, vf_cols)
-    sens_b_arr = _nanmean_columns(sens_mat[:thr])
-    sens_l_arr = _nanmean_columns(sens_mat[-thr:])
+    value_mat = _matrix_from_df(df_vf, value_cols)
+    value_b = _expand_24d2_values(_nanmean_columns(value_mat[:thr]))
+    value_l = _expand_24d2_values(_nanmean_columns(value_mat[-thr:]))
+    diff = value_l - value_b
 
-    def _mean_df(sens_arr):
-        row = {c: df_vf[c].iloc[0] for c in df_vf.columns if c not in vf_cols}
-        for j, col in enumerate(vf_cols):
-            row[col] = float(sens_arr[j]) if j < len(sens_arr) and np.isfinite(sens_arr[j]) else np.nan
-        return pd.DataFrame([row])[list(df_vf.columns)]
+    if prob_prefix is None:
+        sens_b = value_b
+        sens_l = value_l
 
-    if type == 's':
-        sens_b = _expand_24d2_values(sens_b_arr)
-        sens_l = _expand_24d2_values(sens_l_arr)
-        diff = sens_l - sens_b
+        def _bg(i):
+            return _gray_hex(_r_sens_gray(sens_b[i]))
 
-        def _bg(i): return _gray_hex(_r_sens_gray(sens_b[i]))
-        def _fg(i): return _gray_hex(_r_sens_gray(sens_l[i]))
-        def _tc(i): return '#4D4D4D' if _r_sens_gray(sens_l[i]) >= 0.5 else '#B3B3B3'
+        def _fg(i):
+            return _gray_hex(_r_sens_gray(sens_l[i]))
 
-    elif type in ('td', 'pd'):
-        df_b = _mean_df(sens_b_arr)
-        df_l = _mean_df(sens_l_arr)
+        def _tc(i):
+            return "#4D4D4D" if _r_sens_gray(sens_l[i]) >= 0.5 else "#B3B3B3"
 
-        if type == 'td':
-            dev_b_df = py_gettd(df_b)
-            dev_l_df = py_gettd(df_l)
-            prob_b_df = py_gettdp(dev_b_df)
-            prob_l_df = py_gettdp(dev_l_df)
-        else:
-            dev_b_df = py_getpd(py_gettd(df_b))
-            dev_l_df = py_getpd(py_gettd(df_l))
-            prob_b_df = py_getpdp(dev_b_df)
-            prob_l_df = py_getpdp(dev_l_df)
+    else:
+        prob_cols = _get_point_cols(df_vf, prob_prefix)
+        sens_cols = _get_point_cols(df_vf, "l")
 
-        dev_b  = _expand_24d2_values(_row_to_array(dev_b_df.iloc[0],  vf_cols))
-        dev_l  = _expand_24d2_values(_row_to_array(dev_l_df.iloc[0],  vf_cols))
-        prob_b = _expand_24d2_values(_row_to_array(prob_b_df.iloc[0], vf_cols))
-        prob_l = _expand_24d2_values(_row_to_array(prob_l_df.iloc[0], vf_cols))
-        sens_b = _expand_24d2_values(sens_b_arr)
-        sens_l = _expand_24d2_values(sens_l_arr)
-        diff = dev_l - dev_b
+        if len(prob_cols) < 52:
+            raise ValueError(f"Missing block: {prob_prefix}1-{prob_prefix}54")
+        if len(sens_cols) < 52:
+            raise ValueError("Missing sensitivity block: l1-l54")
+
+        prob_mat = _matrix_from_df(df_vf, prob_cols)
+        sens_mat = _matrix_from_df(df_vf, sens_cols)
+
+        prob_b = _expand_24d2_values(_nanmean_columns(prob_mat[:thr]))
+        prob_l = _expand_24d2_values(_nanmean_columns(prob_mat[-thr:]))
+
+        sens_b = _expand_24d2_values(_nanmean_columns(sens_mat[:thr]))
+        sens_l = _expand_24d2_values(_nanmean_columns(sens_mat[-thr:]))
 
         def _prob_fill(p, s=None):
             if s is not None and np.isfinite(float(s)) and float(s) < 0:
                 return "#111111"
-
             fc, ec, tc, lw = _probability_cell_style(p, scheme="5")
             return fc
 
-        def _bg(i): return _prob_fill(prob_b[i], sens_b[i])
-        def _fg(i): return _prob_fill(prob_l[i], sens_l[i])
-        def _tc(i): return '#4D4D4D' if _hex_luminance(_fg(i)) >= 0.4 else '#B3B3B3'
+        def _bg(i):
+            return _prob_fill(prob_b[i], sens_b[i])
 
-    else:
-        raise ValueError(f'Unknown lego type: {type}')
+        def _fg(i):
+            return _prob_fill(prob_l[i], sens_l[i])
+
+        def _tc(i):
+            return "#4D4D4D" if _hex_luminance(_fg(i)) >= 0.4 else "#B3B3B3"
 
     fig, ax = plt.subplots(figsize=(7, 6))
     drew_bs = False
@@ -1133,34 +1277,58 @@ def vflegoplot(df_vf_py, type='s', grp=3, save=False, filename='tmp', fmt='pdf')
                 _draw_r_blind_spot(ax)
                 drew_bs = True
             continue
+
         c, r = pos
         y = 7 - r
+
         if i >= len(diff) or np.isnan(diff[i]):
             continue
 
-        ax.add_patch(mpatches.Rectangle(
-            (c - half, y - half), 2 * half, 2 * half,
-            facecolor=_bg(i), edgecolor='none'
-        ))
-        ax.add_patch(mpatches.Circle(
-            (c, y), radius=crad, facecolor=_fg(i), edgecolor='none', zorder=2
-        ))
+        ax.add_patch(
+            mpatches.Rectangle(
+                (c - half, y - half),
+                2 * half,
+                2 * half,
+                facecolor=_bg(i),
+                edgecolor="none",
+            )
+        )
+
+        ax.add_patch(
+            mpatches.Circle(
+                (c, y),
+                radius=crad,
+                facecolor=_fg(i),
+                edgecolor="none",
+                zorder=2,
+            )
+        )
+
         d_r = round(diff[i], 1)
-        txt = str(int(d_r)) if d_r == int(d_r) else f'{d_r:.1f}'
-        # bold for readability on dark tiles
-        ax.text(c, y, txt, ha='center', va='center', fontsize=7,
-                fontweight='bold', color=_tc(i), zorder=3)
+        txt = str(int(d_r)) if d_r == int(d_r) else f"{d_r:.1f}"
+
+        ax.text(
+            c,
+            y,
+            txt,
+            ha="center",
+            va="center",
+            fontsize=7,
+            fontweight="bold",
+            color=_tc(i),
+            zorder=3,
+        )
 
     ax.set_xlim(-0.6, 8.6)
     ax.set_ylim(-0.6, 7.6)
-    ax.set_aspect('equal')
-    ax.axis('off')
-    ax.set_title(f'Lego plot ({type})', fontsize=10)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    ax.set_title(f"Lego plot ({type})", fontsize=10)
+
     plt.tight_layout()
     _save_plot(fig, save=save, filename=filename, fmt=fmt)
     plt.show()
     plt.close(fig)
-
 
 def vflegoplot_s(df_vf_py, save=False, filename='tmp', fmt='pdf'):
     vflegoplot(df_vf_py, type='s', save=save, filename=filename, fmt=fmt)
@@ -1174,20 +1342,33 @@ def vflegoplot_pd(df_vf_py, save=False, filename='tmp', fmt='pdf'):
     vflegoplot(df_vf_py, type='pd', save=save, filename=filename, fmt=fmt)
 
 
-def vfsfa(df_vf_py, filename='report.pdf'):
+def vfsfa(df_vf, filename='report.pdf'):
     """Generate a single-field analysis report with PyVisualFields-derived values."""
-    df_vf, vf_cols, df_td, df_pd, df_tdp, df_pdp, df_gi = _compute_plot_dataframes(df_vf_py.head(1))
-    sens = _row_to_array(df_vf.iloc[0], vf_cols)
-    td = _row_to_array(df_td.iloc[0], vf_cols)
-    pd_vals = _row_to_array(df_pd.iloc[0], vf_cols)
-    tdp = _row_to_array(df_tdp.iloc[0], vf_cols)
-    pdp = _row_to_array(df_pdp.iloc[0], vf_cols)
+    # df_vf, vf_cols, df_td, df_pd, df_tdp, df_pdp, df_gi = _compute_plot_dataframes(df_vf_py.head(1))
+
+
+    sensCols  = _get_vf_cols(df_vf, colname='l')
+    tdCols  = _get_vf_cols(df_vf, colname='td')
+    pdCols  = _get_vf_cols(df_vf, colname='pd')
+    tdpCols  = _get_vf_cols(df_vf, colname='tdp')
+    pdpCols  = _get_vf_cols(df_vf, colname='pdp')
+    
+    
+    sens = _row_to_array(df_vf.iloc[0], sensCols)
+    td = _row_to_array(df_vf.iloc[0], tdCols)
+    pd_vals = _row_to_array(df_vf.iloc[0], pdCols)
+    tdp = _row_to_array(df_vf.iloc[0], tdpCols)
+    pdp = _row_to_array(df_vf.iloc[0], pdpCols)
+
+    df_gi = getgl(df_vf)
     gi = df_gi.iloc[0]
 
     fig, axes = plt.subplots(1, 3, figsize=(16, 5))
     _vf_grid_plot(sens, title='Sensitivity (dB)', ax=axes[0])
     _vf_grid_plot(td, title='Total Deviation (dB)', ax=axes[1])
     _vf_prob_plot(pd_vals, pdp, title='Pattern Deviation Prob', ax=axes[2])
+
+    # vfplot(df_vf, type='s', title='Sensitivity', save=True, filename='file', fmt='png')
 
     fig.suptitle(
         f"MD={gi['tmd']:.2f} dB   PSD={gi['psd']:.2f} dB   VFI={gi['vfi']:.1f}%",
@@ -1198,16 +1379,11 @@ def vfsfa(df_vf_py, filename='report.pdf'):
     plt.close(fig)
     print(f'Saved: {filename}')
     
-    
-    
 
 
-
-
-
-def getallvalues(dataframe_VFs_py):
-    """Compute all deviations and global indices."""
-    return py_getallvalues(dataframe_VFs_py)
+# def getallvalues(dataframe_VFs_py):
+#     """Compute all deviations and global indices."""
+#     return py_getallvalues(dataframe_VFs_py)
         
        
 def gettd(dataframe_VFs_py):
@@ -1460,21 +1636,30 @@ def _ols_regression(x, y, test_slope):
     return slope, intercept, tval, pval, se
 
 
-def plr(df_VFs_py, type = "s", testSlope = 0):
+def plr(df_vf, type = "s", testSlope = 0):
     """Perform pointwise linear regression using the active Deviation_Analysis NV setting.
 
     The default ``type="s"`` regresses raw sensitivity, matching R visualFields
     1.0.7 (which removed the ``type`` argument and always uses sensitivity). Pass
     ``type="td"`` for the older R 1.0.1 behavior (total deviation).
     """
-    df_vf, vf_cols = _canonicalize_vf_dataframe(df_VFs_py)
+    # df_vf, vf_cols = _canonicalize_vf_dataframe(df_VFs_py)
     years = _parse_years(df_vf)
+    
+    sensCols  = _get_vf_cols(df_vf, colname='l')
+    tdCols  = _get_vf_cols(df_vf, colname='td')
+    pdCols  = _get_vf_cols(df_vf, colname='pd')
+    tdpCols  = _get_vf_cols(df_vf, colname='tdp')
+    pdpCols  = _get_vf_cols(df_vf, colname='pdp')
 
     if type in ('td', 'tds'):
-        data = _matrix_from_df(py_gettd(df_vf), vf_cols)
+        vf_cols = tdCols
+        data = _matrix_from_df(df_vf, vf_cols)
     elif type in ('pd', 'pds'):
-        data = _matrix_from_df(py_getpd(py_gettd(df_vf)), vf_cols)
+        vf_cols = pdCols
+        data = _matrix_from_df(df_vf, vf_cols)
     else:
+        vf_cols = sensCols
         data = _matrix_from_df(df_vf, vf_cols)
 
     n_pts = data.shape[1]
@@ -1626,7 +1811,7 @@ def _poplr_permutations(n_visits, nperm_arg):
     return np.array(rows, dtype=int)
 
 
-def poplr(df_VFs_py, type="s", testSlope=0, nperm='default', trunc=1):
+def poplr(df_vf, type="s", testSlope=0, nperm='default', trunc=1):
     """PoPLR analysis.
 
     Permutation Analyses of Pointwise Linear Regression (O'Leary et al. 2012,
@@ -1653,15 +1838,27 @@ def poplr(df_VFs_py, type="s", testSlope=0, nperm='default', trunc=1):
               pstats (dict: sl, int, se, pval, permutations),
               cstats (dict: csl, cslp, csr, csrp, cslall, csrall).
     """
-    df_vf, vf_cols = _canonicalize_vf_dataframe(df_VFs_py)
-    years    = _parse_years(df_vf)
     n_visits = len(df_vf)
 
+
+
+    # df_vf, vf_cols = _canonicalize_vf_dataframe(df_VFs_py)
+    years = _parse_years(df_vf)
+    
+    sensCols  = _get_vf_cols(df_vf, colname='l')
+    tdCols  = _get_vf_cols(df_vf, colname='td')
+    pdCols  = _get_vf_cols(df_vf, colname='pd')
+    tdpCols  = _get_vf_cols(df_vf, colname='tdp')
+    pdpCols  = _get_vf_cols(df_vf, colname='pdp')
+
     if type in ('td', 'tds'):
-        data = _matrix_from_df(py_gettd(df_vf), vf_cols)
+        vf_cols = tdCols
+        data = _matrix_from_df(df_vf, vf_cols)
     elif type in ('pd', 'pds'):
-        data = _matrix_from_df(py_getpd(py_gettd(df_vf)), vf_cols)
+        vf_cols = pdCols
+        data = _matrix_from_df(df_vf, vf_cols)
     else:
+        vf_cols = sensCols
         data = _matrix_from_df(df_vf, vf_cols)
 
     n_pts = data.shape[1]

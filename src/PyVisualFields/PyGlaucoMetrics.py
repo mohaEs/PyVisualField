@@ -5,51 +5,51 @@ import pandas as pd
 import numpy as np
 import pandas as pd
 
+from PyVisualFields.Deviation_Analysis import _get_point_cols, _get_vf_cols
+
+# def _normalise_eye(val):
+#     """Return 'OD' or 'OS' regardless of input format."""
+#     v = str(val).strip().lower()
+#     if v in ('od', 'right', 'r', '1', 'righteye', 're'):
+#         return 'OD'
+#     if v in ('os', 'left', 'l', '0', 'lefteye', 'le'):
+#         return 'OS'
+#     return None   # unknown — caller returns Non-GL
 
 
-def _normalise_eye(val):
-    """Return 'OD' or 'OS' regardless of input format."""
-    v = str(val).strip().lower()
-    if v in ('od', 'right', 'r', '1', 'righteye', 're'):
-        return 'OD'
-    if v in ('os', 'left', 'l', '0', 'lefteye', 'le'):
-        return 'OS'
-    return None   # unknown — caller returns Non-GL
+# def _pt_cols_from_row(row):
+#     """Return sorted point column names (s* or l*) from a row's index."""
+#     cols = sorted(
+#         [c for c in row.index if len(c) >= 2 and c[0] in ('s', 'l') and c[1:].isdigit()],
+#         key=lambda x: int(x[1:])
+#     )
+#     return cols
 
 
-def _pt_cols_from_row(row):
-    """Return sorted point column names (s* or l*) from a row's index."""
-    cols = sorted(
-        [c for c in row.index if len(c) >= 2 and c[0] in ('s', 'l') and c[1:].isdigit()],
-        key=lambda x: int(x[1:])
-    )
-    return cols
+# def _pt_cols_from_df(df, listCols=None):
+#     """Return sorted point column names (s* or l*) from a dataframe."""
+#     cols = sorted(
+#         [c for c in df.columns if len(c) >= 2 and c[0] in (listCols) and c[1:].isdigit()],
+#         key=lambda x: int(x[1:])
+#     )
+#     return cols
 
 
-def _pt_cols_from_df(df):
-    """Return sorted point column names (s* or l*) from a dataframe."""
-    cols = sorted(
-        [c for c in df.columns if len(c) >= 2 and c[0] in ('s', 'l') and c[1:].isdigit()],
-        key=lambda x: int(x[1:])
-    )
-    return cols
+# def _eye_col(row):
+#     """Return the eye value from whichever column name exists (Eye/eye/EYE)."""
+#     for name in ('Eye', 'eye', 'EYE'):
+#         if name in row.index:
+#             return row[name]
+#     return None
 
 
-def _eye_col(row):
-    """Return the eye value from whichever column name exists (Eye/eye/EYE)."""
-    for name in ('Eye', 'eye', 'EYE'):
-        if name in row.index:
-            return row[name]
-    return None
-
-
-def _col(prefix, n, pt_cols):
-    """
-    Return the column name for point n (1-indexed) using whatever prefix
-    is present in pt_cols (s or l).
-    """
-    actual_prefix = pt_cols[0][0] if pt_cols else 's'
-    return f'{actual_prefix}{n}'
+# def _col(prefix, n, pt_cols):
+#     """
+#     Return the column name for point n (1-indexed) using whatever prefix
+#     is present in pt_cols (s or l).
+#     """
+#     actual_prefix = pt_cols[0][0] if pt_cols else 's'
+#     return f'{actual_prefix}{n}'
 
 
 def convertVF_to_2D(VF):
@@ -157,16 +157,30 @@ def has_pd_cluster_3_with_1_at_1pct(pd_values):
     return False
 
 
+GHT_CODES = {
+    1: "within normal limits",
+    2: "borderline",
+    3: "outside normal limits",
+    4: "general reduction of sensitivity",
+    5: "abnormally high sensitivity",
+    6: "borderline/general reduction",
+}
+
 def _is_ght_outside_normal_limits(x):
+
     if pd.isna(x):
         return False
+
+    try:
+        return int(x) == 3
+    except (TypeError, ValueError):
+        pass
 
     x = str(x).strip().lower()
 
     return (
         "outside normal limits" in x
-        or "outside" in x
-        or x in {"onl", "abnormal"}
+        or x in {"outside", "onl", "abnormal"}
     )
 
 
@@ -201,13 +215,13 @@ def HAP2_clf(row):
     OR
     3. PSD at P < 5%
     """
-    pt_cols = _pt_cols_from_df(pd.DataFrame([row]))
+    pt_cols = _get_vf_cols(pd.DataFrame([row]), colname='pdp')    
     pd_values = pd.to_numeric(row[pt_cols], errors="coerce").values
 
     # Criterion 1: GHT outside normal limits
-    for ght_col in ["GHT", "ght"]:
-        if ght_col in row.index and _is_ght_outside_normal_limits(row[ght_col]):
-            return "GL"
+    # canonicalized dataframe should use lowercase ght
+    if "ght" in row.index and _is_ght_outside_normal_limits(row["ght"]):
+        return "GL"
 
     # Criterion 2: PD cluster
     if has_pd_cluster_3_with_1_at_1pct(pd_values):
@@ -226,7 +240,117 @@ def Fn_HAP2(df_PDP):
     return out
 
 
-# def Fn_HAP2_partII(df_sensitivity, df_PDP):
+###################
+
+def _central_5_indices_24d2():
+    """
+    Approximate central 5-degree locations in 24-2.
+    Uses 1-based VF indices.
+    """
+    return [23, 24, 32, 33]
+
+
+def _hemifield_indices_24d2():
+    """
+    Superior/inferior hemifields using 1-based 24-2 indices.
+    Blind spots are included safely; NaNs are ignored later.
+    """
+    superior = list(range(1, 28))      # rows above/including horizontal midline
+    inferior = list(range(28, 55))     # rows below horizontal midline
+    return superior, inferior
+
+
+def _get_cols_by_indices(prefix, indices, row):
+    return [
+        f"{prefix}{i}"
+        for i in indices
+        if f"{prefix}{i}" in row.index
+    ]
+
+
+def HAP2_part2_severity(row):
+    """
+    HAP2 Part II severity classification:
+        Early / Moderate / Severe
+
+    Assumes canonicalized row with:
+        l1-l54, pdp1-pdp54, md
+    """
+
+    # Required columns
+    l_cols = [f"l{i}" for i in range(1, 55) if f"l{i}" in row.index]
+    pdp_cols = [f"pdp{i}" for i in range(1, 55) if f"pdp{i}" in row.index]
+
+    if "md" not in row.index:
+        return "Unknown"
+
+    md = pd.to_numeric(row["md"], errors="coerce")
+    if pd.isna(md):
+        return "Unknown"
+
+    sens = pd.to_numeric(row[l_cols], errors="coerce")
+    pdp = pd.to_numeric(row[pdp_cols], errors="coerce")
+
+    central_idx = _central_5_indices_24d2()
+    central_cols = _get_cols_by_indices("l", central_idx, row)
+    central_sens = pd.to_numeric(row[central_cols], errors="coerce")
+
+    # PD probability counts
+    n_pdp_5 = int((pdp < 0.05).sum())
+    n_pdp_1 = int((pdp < 0.01).sum())
+
+    # central 5-degree sensitivity
+    any_central_0 = bool((central_sens == 0).any())
+    any_central_lt15 = bool((central_sens < 15).any())
+
+    # hemifield central <15
+    sup_idx, inf_idx = _hemifield_indices_24d2()
+    sup_central_cols = _get_cols_by_indices("l", [i for i in central_idx if i in sup_idx], row)
+    inf_central_cols = _get_cols_by_indices("l", [i for i in central_idx if i in inf_idx], row)
+
+    sup_lt15 = bool((pd.to_numeric(row[sup_central_cols], errors="coerce") < 15).any())
+    inf_lt15 = bool((pd.to_numeric(row[inf_central_cols], errors="coerce") < 15).any())
+
+    # -------------------------
+    # Severe defect
+    # Any criterion is enough
+    # -------------------------
+    severe = (
+        md < -12
+        or any_central_0
+        or (sup_lt15 and inf_lt15)
+        or n_pdp_5 >= 27
+        or n_pdp_1 >= 14
+    )
+
+    if severe:
+        return "Severe"
+
+    # -------------------------
+    # Early defect
+    # All criteria required
+    # -------------------------
+    early = (
+        md > -6
+        and not any_central_lt15
+        and n_pdp_5 <= 12
+        and n_pdp_1 <= 4
+    )
+
+    if early:
+        return "Early"
+
+    # -------------------------
+    # Otherwise moderate
+    # -------------------------
+    return "Moderate"
+
+
+def Fn_HAP2_part2(df):
+    df
+    out = df.copy()
+    severity = out.apply(HAP2_part2_severity, axis=1)
+    return pd.concat([out, severity.rename("severity(HAP2_part2)")], axis=1).copy()
 
 
 
@@ -342,18 +466,22 @@ def UKGTS_clf(row_prob, row_db):
 
     return "Non-GL"
 
-def Fn_UKGTS(df_TDP, df_TD):
-    prob_cols = _pt_cols_from_df(df_TDP)
-    db_cols = _pt_cols_from_df(df_TD)
+def Fn_UKGTS(df):
+
+    prob_cols = _get_vf_cols(df, colname='tdp') 
+    db_cols = _get_vf_cols(df, colname='td') 
+
+    # prob_cols = _pt_cols_from_df(df_TDP)
+    # db_cols = _pt_cols_from_df(df_TD)
 
     if len(prob_cols) != 54 or len(db_cols) != 54:
         raise ValueError("Expected 54 VF point columns in both probability and dB dataframes.")
 
-    out = df_TDP.copy()
+    out = df.copy()
 
     out["UKGTS_clf"] = [
-        UKGTS_clf(df_TDP.loc[i, prob_cols], df_TD.loc[i, db_cols])
-        for i in df_TDP.index
+        UKGTS_clf(df.loc[i, prob_cols], df.loc[i, db_cols])
+        for i in df.index
     ]
 
     return out
@@ -368,11 +496,11 @@ def Fn_UKGTS(df_TDP, df_TD):
 #     return 'GL' if (numeric_values < -10).sum() >= 2 else 'Non-GL'
 
 
-def Fn_LoGTS(df_TD):
-    pt_cols = _pt_cols_from_df(df_TD)
-    df = df_TD.copy()
-    df['LoGTS_clf'] = df[pt_cols].apply(LoGTS_clf, axis=1)
-    return df   
+def Fn_LoGTS(df):
+    pt_cols = _get_vf_cols(df, colname='td')
+    out = df.copy()
+    out['LoGTS_clf'] = out[pt_cols].apply(LoGTS_clf, axis=1)
+    return out
 
 
 def LoGTS_clf(row):
@@ -406,11 +534,11 @@ def Kangs_clf(row):
     return 'Non-GL'
 
 
-def Fn_Kangs(df_TD):
-    pt_cols = _pt_cols_from_df(df_TD)
-    df = df_TD.copy()
-    df['Kangs_clf'] = df[pt_cols].apply(Kangs_clf, axis=1)
-    return df
+def Fn_Kangs(df):    
+    pt_cols = _get_vf_cols(df, colname='td')
+    out = df.copy()
+    out['Kangs_clf'] = out[pt_cols].apply(Kangs_clf, axis=1)
+    return out
 
 
 ########################################################
@@ -489,7 +617,7 @@ def Foster_clf(row):
     # -----------------
     # PD cluster check
     # -----------------
-    pt_cols = _pt_cols_from_df(pd.DataFrame([row]))
+    pt_cols = _get_vf_cols(pd.DataFrame([row]), colname='pdp')
     pd_values = pd.to_numeric(
         row[pt_cols],
         errors="coerce"
@@ -508,11 +636,10 @@ def Foster_clf(row):
     return "GL" if (ght_ok and cluster_ok) else "Non-GL"
 
 
-
-def Fn_Foster(df_PDP):
-    df_P = df_PDP.copy()
-    df_P['Foster_clf'] = df_P.apply(Foster_clf, axis=1)
-    return df_P
+def Fn_Foster(df):
+    out = df.copy()
+    out['Foster_clf'] = out.apply(Foster_clf, axis=1)
+    return out
 
 
 ########################################################
