@@ -70,9 +70,9 @@ def _nv() -> dict:
     return _NORMVALS[_current_nv_key]
 
 
-def _get_vf_cols(df: pd.DataFrame) -> list:
+def _get_vf_cols(df: pd.DataFrame, colname='l') -> list:
     """Ordered list of location columns (l1, l2, …) present in df."""
-    return [c for c in df.columns if c.startswith("l") and c[1:].isdigit()]
+    return [c for c in df.columns if c.startswith(colname) and c[len(colname):].isdigit()]
 
 
 def _info_cols(df: pd.DataFrame) -> list:
@@ -194,25 +194,38 @@ def py_setnv_custom(nv_py: dict) -> None:
 
 def py_gettd(df_vf: pd.DataFrame) -> pd.DataFrame:
     """Total Deviation = measured sensitivity − age-expected normal."""
-    nv    = _nv()
+
+    nv = _nv()
     coeff = nv["agem_coeff"]
 
-    intercept = np.array([float(v) if str(v) != "NA" else np.nan
-                          for v in coeff["intercept"]], dtype=float)
-    slope_arr = np.array([float(v) if str(v) != "NA" else np.nan
-                          for v in coeff["slope"]], dtype=float)
+    intercept = np.array(
+        [float(v) if str(v) != "NA" else np.nan
+         for v in coeff["intercept"]],
+        dtype=float,
+    )
 
-    vf_cols = _get_vf_cols(df_vf)
-    n_locs  = len(vf_cols)
-    assert n_locs == len(intercept), (
-        f"DataFrame has {n_locs} location columns, NV has {len(intercept)}.")
+    slope_arr = np.array(
+        [float(v) if str(v) != "NA" else np.nan
+         for v in coeff["slope"]],
+        dtype=float,
+    )
 
-    ages     = df_vf["age"].values.astype(float)
-    sens     = df_vf[vf_cols].values.astype(float)
+    vf_cols = _get_vf_cols(df_vf, colname='l')
+
+    ages = df_vf["age"].values.astype(float)
+    sens = df_vf[vf_cols].values.astype(float)
+
     expected = intercept + slope_arr * ages[:, np.newaxis]
+    td_vals = sens - expected
 
-    df_td = df_vf.copy()
-    df_td[vf_cols] = sens - expected
+    meta_cols = [c for c in df_vf.columns if c not in vf_cols]
+
+    df_td = df_vf[meta_cols].copy()
+
+    td_cols = [f"td{i}" for i in range(1, len(vf_cols) + 1)]
+
+    df_td[td_cols] = td_vals
+
     return df_td
 
 
@@ -220,11 +233,13 @@ def py_getgh(df_td: pd.DataFrame) -> np.ndarray:
     """General Height (85th percentile of TD, excluding blind-spot locations)."""
     nv      = _nv()
     gh_perc = float(nv["gh_perc"])
-    bs_1idx = nv.get("gl_bs", []) or []
-    bs_cols = {f"l{i}" for i in bs_1idx if i is not None}
+    bs_1idx = {i for i in (nv.get("gl_bs", []) or []) if i is not None}
 
-    vf_cols  = _get_vf_cols(df_td)
-    use_cols = [c for c in vf_cols if c not in bs_cols]
+    td_cols  = _get_vf_cols(df_td, colname='td')
+    # Exclude blind-spot locations by their 1-indexed position, independent of the
+    # column prefix (td columns are named td1..tdN, so a name-based 'l{i}' set never
+    # matched and left blind spots in the percentile rank).
+    use_cols = [c for k, c in enumerate(td_cols, start=1) if k not in bs_1idx]
 
     vals = df_td[use_cols].values.astype(float)
     n    = vals.shape[1]
@@ -237,11 +252,21 @@ def py_getgh(df_td: pd.DataFrame) -> np.ndarray:
 
 def py_getpd(df_td: pd.DataFrame) -> pd.DataFrame:
     """Pattern Deviation = Total Deviation − General Height."""
-    vf_cols = _get_vf_cols(df_td)
+    td_cols = _get_vf_cols(df_td, colname='td')
     gh      = py_getgh(df_td)
-    df_pd   = df_td.copy()
-    df_pd[vf_cols] = df_td[vf_cols].values - gh[:, np.newaxis]
+
+    meta_cols = [c for c in df_td.columns if c not in td_cols]
+
+    pd_vals = df_td[td_cols].values.astype(float) - gh[:, np.newaxis]
+
+    df_pd = df_td[meta_cols].copy()
+
+    pd_cols = [f"pd{i}" for i in range(1, len(td_cols) + 1)]
+
+    df_pd[pd_cols] = pd_vals
+
     return df_pd
+
 
 
 # ---------------------------------------------------------------------------
@@ -256,42 +281,83 @@ def _parse_lut_value(v) -> float:
     return float(v)
 
 
-def _apply_prob_lut(df: pd.DataFrame, lut_dict: dict, probs: list) -> pd.DataFrame:
+def _get_point_cols(df, prefix):
+    return sorted(
+        [
+            c for c in df.columns
+            if c.startswith(prefix) and c[len(prefix):].isdigit()
+        ],
+        key=lambda x: int(x[len(prefix):])
+    )
+
+def _apply_prob_lut(
+    df: pd.DataFrame,
+    lut_dict: dict,
+    probs: list,
+    input_prefix: str,
+    output_prefix: str,
+) -> pd.DataFrame:
     """Assign probability levels per location using a cutoff table."""
-    vf_cols = _get_vf_cols(df)
+
+    in_cols = _get_point_cols(df, input_prefix)
+
     n_probs = len(probs)
-    vals    = df[vf_cols].values.astype(float)
-    R, N    = vals.shape
-    valsp   = np.full((R, N), np.nan)
+    vals = df[in_cols].values.astype(float)
+    R, N = vals.shape
+    valsp = np.full((R, N), np.nan)
 
     lut_arr = np.zeros((n_probs, N), dtype=float)
-    for j, col in enumerate(vf_cols):
-        raw = lut_dict.get(col) or [np.nan] * n_probs
+
+    for j, col in enumerate(in_cols):
+        # LUT keys are usually l1...l54, even when input is td1...td54
+        loc_num = int(col[len(input_prefix):])
+        lut_key = f"l{loc_num}"
+
+        raw = lut_dict.get(lut_key) or [np.nan] * n_probs
+
         for i, v in enumerate(raw):
             lut_arr[i, j] = _parse_lut_value(v)
 
-    prob_vals = np.array([_parse_lut_value(p) if isinstance(p, str) else float(p)
-                          for p in probs])
+    prob_vals = np.array([
+        _parse_lut_value(p) if isinstance(p, str) else float(p)
+        for p in probs
+    ])
 
     for i in range(n_probs - 1, 0, -1):
         mask = vals < lut_arr[i, :]
         valsp[mask] = prob_vals[i]
 
-    df_p = df.copy()
-    df_p[vf_cols] = valsp
-    return df_p
+    meta_cols = [c for c in df.columns if c not in in_cols]
+    out = df[meta_cols].copy()
+
+    out_cols = [f"{output_prefix}{i}" for i in range(1, N + 1)]
+    out[out_cols] = valsp
+
+    return out
 
 
 def py_gettdp(df_td: pd.DataFrame) -> pd.DataFrame:
     """Total Deviation probability values."""
     nv = _nv()
-    return _apply_prob_lut(df_td, nv["td_lut"], nv["td_probs"])
+    return _apply_prob_lut(
+        df_td,
+        nv["td_lut"],
+        nv["td_probs"],
+        input_prefix="td",
+        output_prefix="tdp",
+    )
 
 
 def py_getpdp(df_pd: pd.DataFrame) -> pd.DataFrame:
     """Pattern Deviation probability values."""
     nv = _nv()
-    return _apply_prob_lut(df_pd, nv["pd_lut"], nv["pd_probs"])
+    return _apply_prob_lut(
+        df_pd,
+        nv["pd_lut"],
+        nv["pd_probs"],
+        input_prefix="pd",
+        output_prefix="pdp",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -333,64 +399,363 @@ def _wtd_var(mat, w):
 # Global indices
 # ---------------------------------------------------------------------------
 
+# def py_getgl(df_vf: pd.DataFrame) -> pd.DataFrame:
+#     """Compute global indices: msens, ssens, tmd, tsd, pmd, psd, gh, vfi."""
+#     nv      = _nv()
+#     bs_1idx = nv.get("gl_bs", []) or []
+#     bs_cols = {f"l{i}" for i in bs_1idx if i is not None}
+
+#     vf_cols  = _get_vf_cols(df_vf)
+#     use_cols = [c for c in vf_cols if c not in bs_cols]
+
+#     df_td  = py_gettd(df_vf)
+#     df_pd  = py_getpd(df_td)
+#     df_tdp = py_gettdp(df_td)
+#     df_pdp = py_getpdp(df_pd)
+
+#     vf_mat  = df_vf[use_cols].values.astype(float)
+#     td_mat  = df_td[use_cols].values.astype(float)
+#     pd_mat  = df_pd[use_cols].values.astype(float)
+#     tdp_mat = df_tdp[use_cols].values.astype(float)
+#     pdp_mat = df_pdp[use_cols].values.astype(float)
+
+#     wtd = np.asarray(nv["gl_wtd"], dtype=float)[:len(use_cols)]
+#     wpd = np.asarray(nv["gl_wpd"], dtype=float)[:len(use_cols)]
+
+#     msens = vf_mat.mean(axis=1)
+#     ssens = vf_mat.std(axis=1, ddof=1)
+#     tmd   = _wtd_mean(td_mat, wtd)
+#     tsd   = np.sqrt(_wtd_var(td_mat, wtd))
+#     pmd   = _wtd_mean(pd_mat, wpd)
+#     psd   = np.sqrt(_wtd_var(pd_mat, wpd))
+#     gh    = py_getgh(df_td)
+
+#     # VFI
+#     coord     = nv.get("gl_coord", {})
+#     coeff     = nv["agem_coeff"]
+#     intercept = np.array([float(v) if str(v) != "NA" else np.nan
+#                           for v in coeff["intercept"]], dtype=float)
+#     slope_arr = np.array([float(v) if str(v) != "NA" else np.nan
+#                           for v in coeff["slope"]], dtype=float)
+
+#     all_l_cols  = _get_vf_cols(df_vf)
+#     use_idx     = [all_l_cols.index(c) for c in use_cols]
+#     intercept_u = intercept[use_idx]
+#     slope_u     = slope_arr[use_idx]
+#     ages        = df_vf["age"].values.astype(float)
+#     mnsens_mat  = intercept_u + slope_u * ages[:, np.newaxis]
+
+#     coord_x = np.asarray(coord.get("x", []), dtype=float)[:len(use_cols)]
+#     coord_y = np.asarray(coord.get("y", []), dtype=float)[:len(use_cols)]
+
+#     vfi = _compute_vfi(vf_mat, td_mat, pd_mat, tdp_mat, pdp_mat,
+#                        tmd, mnsens_mat, coord_x, coord_y)
+
+#     info   = df_vf[_info_cols(df_vf)].copy().reset_index(drop=True)
+#     result = info.assign(msens=msens, ssens=ssens,
+#                          tmd=tmd, tsd=tsd, pmd=pmd, psd=psd,
+#                          gh=gh, vfi=vfi)
+#     return result
+
+
+# def py_getgl(df_vf: pd.DataFrame) -> pd.DataFrame:
+#     """
+#     Compute global indices: msens, ssens, tmd, tsd, pmd, psd, gh, vfi.
+
+#     Assumes df_vf is already canonicalized and contains:
+#         l1-l54, td1-td54, pd1-pd54, tdp1-tdp54, pdp1-pdp54
+#     """
+
+#     nv = _nv()
+
+#     l_cols   = _get_point_cols(df_vf, "l")
+#     td_cols  = _get_point_cols(df_vf, "td")
+#     pd_cols  = _get_point_cols(df_vf, "pd")
+#     tdp_cols = _get_point_cols(df_vf, "tdp")
+#     pdp_cols = _get_point_cols(df_vf, "pdp")
+
+#     n_locs = len(l_cols)
+
+#     if not all(len(x) == n_locs for x in [td_cols, pd_cols, tdp_cols, pdp_cols]):
+#         raise ValueError(
+#             "py_getgl requires matching complete blocks: "
+#             "l, td, pd, tdp, and pdp."
+#         )
+
+#     bs_1idx = set(nv.get("gl_bs", []) or [])
+
+#     use_idx = [
+#         i for i in range(n_locs)
+#         if (i + 1) not in bs_1idx
+#     ]
+
+#     l_use   = [l_cols[i] for i in use_idx]
+#     td_use  = [td_cols[i] for i in use_idx]
+#     pd_use  = [pd_cols[i] for i in use_idx]
+#     tdp_use = [tdp_cols[i] for i in use_idx]
+#     pdp_use = [pdp_cols[i] for i in use_idx]
+
+#     vf_mat  = df_vf[l_use].values.astype(float)
+#     td_mat  = df_vf[td_use].values.astype(float)
+#     pd_mat  = df_vf[pd_use].values.astype(float)
+#     tdp_mat = df_vf[tdp_use].values.astype(float)
+#     pdp_mat = df_vf[pdp_use].values.astype(float)
+
+#     wtd = np.asarray(nv["gl_wtd"], dtype=float)
+#     wpd = np.asarray(nv["gl_wpd"], dtype=float)
+
+#     if len(wtd) != len(use_idx):
+#         raise ValueError(
+#         f"Weight length mismatch: gl_wtd has {len(wtd)} weights, "
+#         f"but {len(use_idx)} non-blind-spot locations were found."
+#         )
+
+#     if len(wpd) != len(use_idx):
+#         raise ValueError(
+#         f"Weight length mismatch: gl_wpd has {len(wpd)} weights, "
+#         f"but {len(use_idx)} non-blind-spot locations were found."
+#         )
+
+#     msens = np.nanmean(vf_mat, axis=1)
+#     ssens = np.nanstd(vf_mat, axis=1, ddof=1)
+
+#     tmd = _wtd_mean(td_mat, wtd)
+#     tsd = np.sqrt(_wtd_var(td_mat, wtd))
+
+#     pmd = _wtd_mean(pd_mat, wpd)
+#     psd = np.sqrt(_wtd_var(pd_mat, wpd))
+
+#     gh = py_getgh(df_vf)
+
+#     # VFI
+#     coord = nv.get("gl_coord", {})
+#     coeff = nv["agem_coeff"]
+
+#     intercept = np.array(
+#         [float(v) if str(v) != "NA" else np.nan for v in coeff["intercept"]],
+#         dtype=float,
+#     )
+
+#     slope_arr = np.array(
+#         [float(v) if str(v) != "NA" else np.nan for v in coeff["slope"]],
+#         dtype=float,
+#     )
+
+#     intercept_u = intercept[use_idx]
+#     slope_u = slope_arr[use_idx]
+
+#     ages = df_vf["age"].values.astype(float)
+#     mnsens_mat = intercept_u + slope_u * ages[:, np.newaxis]
+
+#     coord_x = np.asarray(coord.get("x", []), dtype=float)
+#     coord_y = np.asarray(coord.get("y", []), dtype=float)
+
+
+#     if len(coord_x) != len(use_idx):
+#         coord_x = coord_x[use_idx]
+
+#     if len(coord_y) != len(use_idx):
+#         coord_y = coord_y[use_idx]
+
+#     vfi = _compute_vfi(
+#         vf_mat,
+#         td_mat,
+#         pd_mat,
+#         tdp_mat,
+#         pdp_mat,
+#         tmd,
+#         mnsens_mat,
+#         coord_x,
+#         coord_y,
+#     )
+
+#     point_cols = set(l_cols + td_cols + pd_cols + tdp_cols + pdp_cols)
+#     info_cols = [c for c in df_vf.columns if c not in point_cols]
+
+#     result = df_vf[info_cols].copy().reset_index(drop=True)
+
+#     result = result.assign(
+#         msens=msens,
+#         ssens=ssens,
+#         tmd=tmd,
+#         tsd=tsd,
+#         pmd=pmd,
+#         psd=psd,
+#         gh=gh,
+#         vfi=vfi,
+#     )
+
+#     return result
+
+
 def py_getgl(df_vf: pd.DataFrame) -> pd.DataFrame:
-    """Compute global indices: msens, ssens, tmd, tsd, pmd, psd, gh, vfi."""
-    nv      = _nv()
-    bs_1idx = nv.get("gl_bs", []) or []
-    bs_cols = {f"l{i}" for i in bs_1idx if i is not None}
+    """
+    Compute missing global indices only.
 
-    vf_cols  = _get_vf_cols(df_vf)
-    use_cols = [c for c in vf_cols if c not in bs_cols]
+    Assumes df_vf is canonicalized and contains:
+        l1-l54, td1-td54, pd1-pd54, tdp1-tdp54, pdp1-pdp54
+    """
 
-    df_td  = py_gettd(df_vf)
-    df_pd  = py_getpd(df_td)
-    df_tdp = py_gettdp(df_td)
-    df_pdp = py_getpdp(df_pd)
+    target_cols = ["msens", "ssens", "tmd", "tsd", "pmd", "psd", "gh", "vfi"]
+    missing = [c for c in target_cols if c not in df_vf.columns]
+    print(f"==> py_getgl: missing global indices to compute: {missing}")
 
-    vf_mat  = df_vf[use_cols].values.astype(float)
-    td_mat  = df_td[use_cols].values.astype(float)
-    pd_mat  = df_pd[use_cols].values.astype(float)
-    tdp_mat = df_tdp[use_cols].values.astype(float)
-    pdp_mat = df_pdp[use_cols].values.astype(float)
+    point_prefixes = ("l", "td", "pd", "tdp", "pdp")
+    point_cols = []
+    for p in point_prefixes:
+        point_cols.extend(_get_point_cols(df_vf, p))
 
-    wtd = np.asarray(nv["gl_wtd"], dtype=float)[:len(use_cols)]
-    wpd = np.asarray(nv["gl_wpd"], dtype=float)[:len(use_cols)]
+    info_cols = [c for c in df_vf.columns if c not in set(point_cols)]
+    result = df_vf[info_cols].copy().reset_index(drop=True)
 
-    msens = vf_mat.mean(axis=1)
-    ssens = vf_mat.std(axis=1, ddof=1)
-    tmd   = _wtd_mean(td_mat, wtd)
-    tsd   = np.sqrt(_wtd_var(td_mat, wtd))
-    pmd   = _wtd_mean(pd_mat, wpd)
-    psd   = np.sqrt(_wtd_var(pd_mat, wpd))
-    gh    = py_getgh(df_td)
+    if not missing:
+        return result
 
-    # VFI
-    coord     = nv.get("gl_coord", {})
-    coeff     = nv["agem_coeff"]
-    intercept = np.array([float(v) if str(v) != "NA" else np.nan
-                          for v in coeff["intercept"]], dtype=float)
-    slope_arr = np.array([float(v) if str(v) != "NA" else np.nan
-                          for v in coeff["slope"]], dtype=float)
+    nv = _nv()
 
-    all_l_cols  = _get_vf_cols(df_vf)
-    use_idx     = [all_l_cols.index(c) for c in use_cols]
-    intercept_u = intercept[use_idx]
-    slope_u     = slope_arr[use_idx]
-    ages        = df_vf["age"].values.astype(float)
-    mnsens_mat  = intercept_u + slope_u * ages[:, np.newaxis]
+    l_cols   = _get_point_cols(df_vf, "l")
+    td_cols  = _get_point_cols(df_vf, "td")
+    pd_cols  = _get_point_cols(df_vf, "pd")
+    tdp_cols = _get_point_cols(df_vf, "tdp")
+    pdp_cols = _get_point_cols(df_vf, "pdp")
 
-    coord_x = np.asarray(coord.get("x", []), dtype=float)[:len(use_cols)]
-    coord_y = np.asarray(coord.get("y", []), dtype=float)[:len(use_cols)]
+    n_locs = len(l_cols)
 
-    vfi = _compute_vfi(vf_mat, td_mat, pd_mat, tdp_mat, pdp_mat,
-                       tmd, mnsens_mat, coord_x, coord_y)
+    if not all(len(x) == n_locs for x in [td_cols, pd_cols, tdp_cols, pdp_cols]):
+        raise ValueError(
+            "py_getgl requires matching complete blocks: "
+            "l, td, pd, tdp, and pdp."
+        )
 
-    info   = df_vf[_info_cols(df_vf)].copy().reset_index(drop=True)
-    result = info.assign(msens=msens, ssens=ssens,
-                         tmd=tmd, tsd=tsd, pmd=pmd, psd=psd,
-                         gh=gh, vfi=vfi)
+    bs_1idx = set(nv.get("gl_bs", []) or [])
+    use_idx = [i for i in range(n_locs) if (i + 1) not in bs_1idx]
+
+    l_use   = [l_cols[i] for i in use_idx]
+    td_use  = [td_cols[i] for i in use_idx]
+    pd_use  = [pd_cols[i] for i in use_idx]
+    tdp_use = [tdp_cols[i] for i in use_idx]
+    pdp_use = [pdp_cols[i] for i in use_idx]
+
+    vf_mat = td_mat = pd_mat = tdp_mat = pdp_mat = None
+
+    if any(c in missing for c in ["msens", "ssens", "vfi"]):
+        vf_mat = df_vf[l_use].values.astype(float)
+
+    if any(c in missing for c in ["tmd", "tsd", "vfi"]):
+        td_mat = df_vf[td_use].values.astype(float)
+
+    if any(c in missing for c in ["pmd", "psd", "vfi"]):
+        pd_mat = df_vf[pd_use].values.astype(float)
+
+    if "vfi" in missing:
+        tdp_mat = df_vf[tdp_use].values.astype(float)
+        pdp_mat = df_vf[pdp_use].values.astype(float)
+
+    wtd = np.asarray(nv["gl_wtd"], dtype=float)
+    wpd = np.asarray(nv["gl_wpd"], dtype=float)
+
+    if len(wtd) != len(use_idx):
+        raise ValueError(
+            f"Weight length mismatch: gl_wtd has {len(wtd)} weights, "
+            f"but {len(use_idx)} non-blind-spot locations were found."
+        )
+
+    if len(wpd) != len(use_idx):
+        raise ValueError(
+            f"Weight length mismatch: gl_wpd has {len(wpd)} weights, "
+            f"but {len(use_idx)} non-blind-spot locations were found."
+        )
+
+    computed = {}
+
+    if "msens" in missing:
+        computed["msens"] = np.nanmean(vf_mat, axis=1)
+
+    if "ssens" in missing:
+        computed["ssens"] = np.nanstd(vf_mat, axis=1, ddof=1)
+
+    if "tmd" in missing:
+        computed["tmd"] = _wtd_mean(td_mat, wtd)
+
+    if "tsd" in missing:
+        if td_mat is None:
+            td_mat = df_vf[td_use].values.astype(float)
+        computed["tsd"] = np.sqrt(_wtd_var(td_mat, wtd))
+
+    if "pmd" in missing:
+        computed["pmd"] = _wtd_mean(pd_mat, wpd)
+
+    if "psd" in missing:
+        if pd_mat is None:
+            pd_mat = df_vf[pd_use].values.astype(float)
+        computed["psd"] = np.sqrt(_wtd_var(pd_mat, wpd))
+
+    if "gh" in missing:
+        computed["gh"] = py_getgh(df_vf)
+
+    if "vfi" in missing:
+        if vf_mat is None:
+            vf_mat = df_vf[l_use].values.astype(float)
+        if td_mat is None:
+            td_mat = df_vf[td_use].values.astype(float)
+        if pd_mat is None:
+            pd_mat = df_vf[pd_use].values.astype(float)
+
+        coord = nv.get("gl_coord", {})
+        coeff = nv["agem_coeff"]
+
+        intercept = np.array(
+            [float(v) if str(v) != "NA" else np.nan for v in coeff["intercept"]],
+            dtype=float,
+        )
+
+        slope_arr = np.array(
+            [float(v) if str(v) != "NA" else np.nan for v in coeff["slope"]],
+            dtype=float,
+        )
+
+        intercept_u = intercept[use_idx]
+        slope_u = slope_arr[use_idx]
+
+        ages = df_vf["age"].values.astype(float)
+        mnsens_mat = intercept_u + slope_u * ages[:, np.newaxis]
+
+        coord_x = np.asarray(coord.get("x", []), dtype=float)
+        coord_y = np.asarray(coord.get("y", []), dtype=float)
+
+        if len(coord_x) != len(use_idx):
+            coord_x = coord_x[use_idx]
+        if len(coord_y) != len(use_idx):
+            coord_y = coord_y[use_idx]
+
+        tmd_for_vfi = (
+            result["tmd"].values.astype(float)
+            if "tmd" in result.columns
+            else computed.get("tmd")
+        )
+
+        if tmd_for_vfi is None:
+            tmd_for_vfi = _wtd_mean(td_mat, wtd)
+
+        computed["vfi"] = _compute_vfi(
+            vf_mat,
+            td_mat,
+            pd_mat,
+            tdp_mat,
+            pdp_mat,
+            tmd_for_vfi,
+            mnsens_mat,
+            coord_x,
+            coord_y,
+        )
+
+    if computed:
+        result = pd.concat(
+            [result, pd.DataFrame(computed, index=result.index)],
+            axis=1,
+        )
+
     return result
-
 
 def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
     """Global indices probability values (left-tailed for means, right for SDs)."""
@@ -446,7 +811,11 @@ def py_getallvalues(df_vf: pd.DataFrame):
     df_tdp = py_gettdp(df_td)
     df_pd  = py_getpd(df_td)
     df_pdp = py_getpdp(df_pd)
-    df_gi  = py_getgl(df_vf)
-    df_gip = py_getglp(df_gi)
+    df_gi  = np.nan # py_getgl(df_vf)
+    df_gip = np.nan # py_getglp(df_gi)
     gh     = py_getgh(df_td)
     return df_td, df_tdp, df_gi, df_gip, df_pd, df_pdp, gh
+
+
+
+
