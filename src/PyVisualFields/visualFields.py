@@ -38,11 +38,6 @@ from PyVisualFields.Deviation_Analysis import (
 
 
 
-
-
-
-
-
 '''  ###########################
 Utils
 '''

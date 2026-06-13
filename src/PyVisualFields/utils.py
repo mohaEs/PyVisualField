@@ -44,7 +44,7 @@ import pandas as pd
 
 
 POINT_ALIASES = {
-    "sens": ["l", "s", "sen", "sens", "sensitivity", "vf"],
+    "sens": ["l", "s", "sen", "sens", "sensitivity"],
     "td": ["td"],
     "pd": ["pd"],
     "tdp": ["tdp"],
@@ -100,9 +100,16 @@ META_ALIASES = {
     "md": [
         "md", "mtd"
     ],
+    "mdprob": [
+        "mdp", "mdprob", "md_p"
+    ],
 
     "psd": [
         "psd"
+    ],
+    #PSD probability
+    "psdprob": [
+        "psd_p", "psdprob", "psdp"
     ],
 
     "ght": [
@@ -262,7 +269,7 @@ def investigate_vf_df(df):
 
     # ---------- Global indices ----------
     global_indices = [
-        "md", "psd", "ght", "vfi",
+        "md", "mdprob", "psd", "psdprob",  "ght", "vfi",
         "msens", "ssens",
         "tmd", "tsd",
         "pmd", "gh"
@@ -373,10 +380,7 @@ def canonicalize_vf_df(
         if len(cols) == 0:
             continue
 
-        # if len(cols) not in (52, 54):
-        #     raise ValueError(
-        #         f"{block}: found {len(cols)} columns, expected 52 or 54."
-        #     )
+
 
         prefix = CANON_PREFIX[block]
 
@@ -391,13 +395,6 @@ def canonicalize_vf_df(
         blocks[block] = _expand_52_to_54(tmp, prefix)
         used.update(cols)
 
-    # if len(vals) == 52:
-    #     vals = np.concatenate([vals[:25], [np.nan], vals[25:33], [np.nan], vals[33:]])
-
-        # elif len(cols) > 0:
-        #     raise ValueError(
-        #         f"{block}: found {len(cols)} columns, expected 52 or 54."
-        #     )
 
     meta = df[[c for c in df.columns if c not in used]].copy()
     out = pd.concat(
@@ -416,22 +413,48 @@ def canonicalize_vf_df(
         if fill_age is not None:
             out["age"] = out["age"].fillna(fill_age)
 
-    if sort_byDateAge:  
+    if sort_byDateAge:
+
         sorted_ok = False
 
         if "date" in out.columns:
+
             sort_key = pd.to_datetime(out["date"], errors="coerce")
 
             if sort_key.notna().any():
+
+                out = out.assign(_sort_date=sort_key)
+
+                sort_cols = []
+
+                if "patientid" in out.columns:
+                    sort_cols.append("patientid")
+
+                if "eyeid" in out.columns:
+                    sort_cols.append("eyeid")
+
+                sort_cols.append("_sort_date")
+
                 out = (
-                    out.assign(_sort_date=sort_key)
-                    .sort_values("_sort_date")
+                    out.sort_values(sort_cols)
                     .drop(columns="_sort_date")
                 )
+
                 sorted_ok = True
 
         if not sorted_ok and "age" in out.columns:
-            out = out.sort_values("age")
+
+            sort_cols = []
+
+            if "patientid" in out.columns:
+                sort_cols.append("patientid")
+
+            if "eyeid" in out.columns:
+                sort_cols.append("eyeid")
+
+            sort_cols.append("age")
+
+            out = out.sort_values(sort_cols)
     
     return out.reset_index(drop=True)
 

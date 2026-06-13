@@ -233,11 +233,13 @@ def py_getgh(df_td: pd.DataFrame) -> np.ndarray:
     """General Height (85th percentile of TD, excluding blind-spot locations)."""
     nv      = _nv()
     gh_perc = float(nv["gh_perc"])
-    bs_1idx = nv.get("gl_bs", []) or []
-    bs_cols = {f"l{i}" for i in bs_1idx if i is not None}
+    bs_1idx = {i for i in (nv.get("gl_bs", []) or []) if i is not None}
 
     td_cols  = _get_vf_cols(df_td, colname='td')
-    use_cols = [c for c in td_cols if c not in bs_cols]
+    # Exclude blind-spot locations by their 1-indexed position, independent of the
+    # column prefix (td columns are named td1..tdN, so a name-based 'l{i}' set never
+    # matched and left blind spots in the percentile rank).
+    use_cols = [c for k, c in enumerate(td_cols, start=1) if k not in bs_1idx]
 
     vals = df_td[use_cols].values.astype(float)
     n    = vals.shape[1]

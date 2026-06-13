@@ -346,6 +346,17 @@ def _progression_cigts_base(eye_df):
     return 'stable'
 
 
+def _eye_sort_key(eyeid):
+    eyeid_str = str(eyeid).strip().upper()
+
+    order = {
+        "OD": 0,
+        "OS": 1,
+        "OU": 2,
+    }
+
+    return (order.get(eyeid_str, 99), eyeid_str)
+
 def progression_cigts(df_VFs_py):
     """CIGTS VF progression analysis.
 
@@ -362,15 +373,25 @@ def progression_cigts(df_VFs_py):
 
     Reference: Musch et al. (1999); Gillespie et al. (2003)
     """
-    if 'eyeid' not in df_VFs_py.columns:
+
+    if "eyeid" not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
-        df_VFs_py['eyeid'] = 1
+        df_VFs_py["eyeid"] = "eye"
 
     results = {}
-    for eyeid, eye_df in df_VFs_py.groupby('eyeid'):
+
+    eyeids = sorted(
+        df_VFs_py["eyeid"].dropna().unique(),
+        key=_eye_sort_key
+    )
+
+    for eyeid in eyeids:
+        eye_df = df_VFs_py[df_VFs_py["eyeid"] == eyeid]
         results[eyeid] = _progression_cigts_base(eye_df)
 
-    return tuple(results.values())
+    return results
+
+
 
 
 def _plr_two_omit(timepoints, tds):
@@ -464,13 +485,19 @@ def progression_plrnouri2012(df_VFs_py):
     """
     if "eyeid" not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
-        df_VFs_py["eyeid"] = 1
+        df_VFs_py["eyeid"] = "eye"
+
+    eyeids = sorted(
+        df_VFs_py["eyeid"].dropna().unique(),
+        key=_eye_sort_key
+    )
 
     results = {}
-    for eyeid, eye_df in df_VFs_py.groupby("eyeid"):
+    for eyeid in eyeids:
+        eye_df = df_VFs_py[df_VFs_py["eyeid"] == eyeid]
         results[eyeid] = _progression_plrnouri2012_base(eye_df)
 
-    return tuple(results.values())
+    return results
 
 
 # OLD R-based progression_vfi
@@ -525,13 +552,19 @@ def progression_vfi(df_VFs_py):
     """
     if "eyeid" not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
-        df_VFs_py["eyeid"] = 1
+        df_VFs_py["eyeid"] = "eye"
+
+    eyeids = sorted(
+        df_VFs_py["eyeid"].dropna().unique(),
+        key=_eye_sort_key
+    )
 
     results = {}
-    for eyeid, eye_df in df_VFs_py.groupby("eyeid"):
+    for eyeid in eyeids:
+        eye_df = df_VFs_py[df_VFs_py["eyeid"] == eyeid]
         results[eyeid] = _progression_vfi_base(eye_df)
 
-    return tuple(results.values())
+    return results
 
 
 # OLD R-based progression_schell2014
@@ -605,11 +638,17 @@ def progression_schell2014(df_VFs_py):
         df_VFs_py = df_VFs_py.copy()
         df_VFs_py["eyeid"] = 1
 
+    eyeids = sorted(
+        df_VFs_py["eyeid"].dropna().unique(),
+        key=_eye_sort_key
+    )
+
     results = {}
-    for eyeid, eye_df in df_VFs_py.groupby("eyeid"):
+    for eyeid in eyeids:
+        eye_df = df_VFs_py[df_VFs_py["eyeid"] == eyeid]
         results[eyeid] = _progression_schell2014_base(eye_df)
 
-    return tuple(results.values())
+    return results
 
 
 
@@ -682,13 +721,19 @@ def progression_agis(df_VFs_py):
     """
     if 'eyeid' not in df_VFs_py.columns:
         df_VFs_py = df_VFs_py.copy()
-        df_VFs_py['eyeid'] = 1
+        df_VFs_py['eyeid'] = "eye"
+
+    eyeids = sorted(
+        df_VFs_py["eyeid"].dropna().unique(),
+        key=_eye_sort_key
+    )
 
     results = {}
-    for eyeid, eye_df in df_VFs_py.groupby('eyeid'):
+    for eyeid in eyeids:
+        eye_df = df_VFs_py[df_VFs_py["eyeid"] == eyeid]
         results[eyeid] = _progression_agis_base(eye_df)
 
-    return tuple(results.values())
+    return results
 
 
 

@@ -104,14 +104,13 @@ def convertVF_to_2D(VF):
 
 
 
-
-def has_pd_cluster_3_with_1_at_1pct(pd_values):
+def has_pd_cluster_3_with_1_at_1pct(pdp_values):
     """
     Criterion:
     cluster of 3 points at P < 5%,
     with at least 1 of those points at P < 1%.
     """
-    pd_grid = convertVF_to_2D(pd_values)
+    pd_grid = convertVF_to_2D(pdp_values)
 
     mask_5 = pd_grid < 0.05
     mask_1 = pd_grid < 0.01
@@ -187,20 +186,25 @@ def _is_ght_outside_normal_limits(x):
 def _is_psd_p_less_5(row):
     """
     Handles possible column names:
-    PSD_P, PSD_p, PSDp, PSD_probability, PSD
     If only PSD is present as a p-value, it checks PSD < 0.05.
     """
-    possible_cols = [
-        "PSD_P", "PSD_p", "PSDp", "psd_p",
-        "PSD_probability", "psd_probability",
-        "PSD", "psd"
-    ]
 
-    for col in possible_cols:
-        if col in row.index:
-            val = pd.to_numeric(row[col], errors="coerce")
-            if pd.notna(val) and val < 0.05:
-                return True
+    if "psdp" not in row.index:
+        return False
+
+    val = pd.to_numeric(row["psdp"], errors="coerce")
+
+    if pd.isna(val):
+        return False
+
+    # coded Humphrey probability categories
+    # integer coded
+    if val in {0, 1, 2, 3, 4, 5}:
+        return val > 2
+
+    # actual probability
+    if 0 <= val <= 1:
+        return val < 0.05
 
     return False
 
@@ -234,9 +238,35 @@ def HAP2_clf(row):
     return "Non-GL"
 
 
+def HAP2_clf_reason(row):
+    pt_cols = _get_vf_cols(pd.DataFrame([row]), colname="pdp")
+    pdp_values = pd.to_numeric(row[pt_cols], errors="coerce").values
+
+    reasons = []
+
+    if "ght" in row.index and _is_ght_outside_normal_limits(row["ght"]):
+        reasons.append("GHT outside")
+
+    if has_pd_cluster_3_with_1_at_1pct(pdp_values):
+        reasons.append("cluster of 3 PDP points < 5% with ≥1 points < 1%")
+
+    if _is_psd_p_less_5(row):
+        reasons.append("PSD p < 0.05")
+
+    if reasons:
+        return "GL", "; ".join(reasons)
+
+    return "Non-GL", ""
+
 def Fn_HAP2(df_PDP):
     out = df_PDP.copy()
-    out["HAP2_clf"] = out.apply(HAP2_clf, axis=1)
+    #out["HAP2_clf"] = out.apply(HAP2_clf, axis=1)
+
+    res = out.apply(HAP2_clf_reason, axis=1)
+
+    out["HAP2_clf"] = res.apply(lambda x: x[0])
+    out["HAP2_reason"] = res.apply(lambda x: x[1])
+
     return out
 
 
@@ -442,104 +472,208 @@ def has_nasal_step_10db(td_grid, nasal_cols=(0, 1, 2, 3, 4)):
     return False
 
 
-########################################################
-########################################################
 
-def UKGTS_clf(row_prob, row_db):
+# def UKGTS_clf(row_prob, row_db):
+#     prob_values = pd.to_numeric(row_prob, errors="coerce").values
+#     db_values = pd.to_numeric(row_db, errors="coerce").values
+
+#     prob_grid = convertVF_to_2D(prob_values)
+#     db_grid = convertVF_to_2D(db_values)
+
+#     # Criterion 1: cluster of 2 points at P < 1%
+#     if has_cluster(prob_grid < 0.01, min_size=2):
+#         return "GL"
+
+#     # Criterion 2: cluster of 3 points at P < 5%
+#     if has_cluster(prob_grid < 0.05, min_size=3):
+#         return "GL"
+
+#     # Criterion 3: cluster of 2 points with 10 dB difference across nasal horizontal midline
+#     if has_nasal_step_10db(db_grid):
+#         return "GL"
+
+#     return "Non-GL"
+
+
+# def Fn_UKGTS(df):
+
+#     prob_cols = _get_vf_cols(df, colname='tdp') 
+#     db_cols = _get_vf_cols(df, colname='td') 
+
+#     # prob_cols = _pt_cols_from_df(df_TDP)
+#     # db_cols = _pt_cols_from_df(df_TD)
+
+#     if len(prob_cols) != 54 or len(db_cols) != 54:
+#         raise ValueError("Expected 54 VF point columns in both probability and dB dataframes.")
+
+#     out = df.copy()
+
+#     out["UKGTS_clf"] = [
+#         UKGTS_clf(df.loc[i, prob_cols], df.loc[i, db_cols])
+#         for i in df.index
+#     ]
+
+#     return out
+
+
+def UKGTS_clf_reason(row_prob, row_db):
     prob_values = pd.to_numeric(row_prob, errors="coerce").values
     db_values = pd.to_numeric(row_db, errors="coerce").values
 
     prob_grid = convertVF_to_2D(prob_values)
     db_grid = convertVF_to_2D(db_values)
 
-    # Criterion 1: cluster of 2 points at P < 1%
+    reasons = []
+
     if has_cluster(prob_grid < 0.01, min_size=2):
-        return "GL"
+        reasons.append("Cluster of 2 TDP points < 1%")
 
-    # Criterion 2: cluster of 3 points at P < 5%
     if has_cluster(prob_grid < 0.05, min_size=3):
-        return "GL"
+        reasons.append("Cluster of 3 TDP points < 5%")
 
-    # Criterion 3: cluster of 2 points with 10 dB difference across nasal horizontal midline
     if has_nasal_step_10db(db_grid):
-        return "GL"
+        reasons.append("Nasal step ≥ 10 dB")
 
-    return "Non-GL"
+    if reasons:
+        return "GL", "; ".join(reasons)
+
+    return "Non-GL", ""
 
 def Fn_UKGTS(df):
 
-    prob_cols = _get_vf_cols(df, colname='tdp') 
-    db_cols = _get_vf_cols(df, colname='td') 
-
-    # prob_cols = _pt_cols_from_df(df_TDP)
-    # db_cols = _pt_cols_from_df(df_TD)
+    prob_cols = _get_vf_cols(df, colname="tdp")
+    db_cols = _get_vf_cols(df, colname="td")
 
     if len(prob_cols) != 54 or len(db_cols) != 54:
-        raise ValueError("Expected 54 VF point columns in both probability and dB dataframes.")
+        raise ValueError(
+            "Expected 54 VF point columns in both probability and dB data."
+        )
 
     out = df.copy()
 
-    out["UKGTS_clf"] = [
-        UKGTS_clf(df.loc[i, prob_cols], df.loc[i, db_cols])
-        for i in df.index
+    res = [
+        UKGTS_clf_reason(out.loc[i, prob_cols], out.loc[i, db_cols])
+        for i in out.index
     ]
+
+    out["UKGTS_clf"] = [r[0] for r in res]
+    out["UKGTS_reason"] = [r[1] for r in res]
 
     return out
 
+########################################################
+########################################################
 
-########################################################
-########################################################
+
+# def Fn_LoGTS(df):
+#     pt_cols = _get_vf_cols(df, colname='td')
+#     out = df.copy()
+#     out['LoGTS_clf'] = out[pt_cols].apply(LoGTS_clf, axis=1)
+#     return out
 
 
 # def LoGTS_clf(row):
-#     numeric_values = pd.to_numeric(row, errors='coerce')
-#     return 'GL' if (numeric_values < -10).sum() >= 2 else 'Non-GL'
+#     values = pd.to_numeric(row, errors='coerce').values
+#     VF_2D = convertVF_to_2D(values)   # ← use the result
 
+#     # criterion 1: cluster of 2 points with TD < -10 dB
+#     if has_cluster(VF_2D < -10, min_size=2):
+#         return "GL"
+
+#     # criterion 2: cluster of 3 points with TD < -8 dB
+#     if has_cluster(VF_2D < -8, min_size=3):
+#         return "GL"
+
+#     return "Non-GL"
+
+def LoGTS_clf_reason(row):
+
+    values = pd.to_numeric(row, errors="coerce").values
+    vf_2d = convertVF_to_2D(values)
+
+    reasons = []
+
+    if has_cluster(vf_2d < -10, min_size=2):
+        reasons.append("Cluster of 2 TD points < -10 dB")
+
+    if has_cluster(vf_2d < -8, min_size=3):
+        reasons.append("Cluster of 3 TDP points < -8 dB")
+
+    if reasons:
+        return "GL", "; ".join(reasons)
+
+    return "Non-GL", ""
 
 def Fn_LoGTS(df):
-    pt_cols = _get_vf_cols(df, colname='td')
+
+    pt_cols = _get_vf_cols(df, colname="td")
+
     out = df.copy()
-    out['LoGTS_clf'] = out[pt_cols].apply(LoGTS_clf, axis=1)
+
+    res = out[pt_cols].apply(LoGTS_clf_reason, axis=1)
+
+    out["LoGTS_clf"] = res.apply(lambda x: x[0])
+    out["LoGTS_reason"] = res.apply(lambda x: x[1])
+
     return out
 
-
-def LoGTS_clf(row):
-    values = pd.to_numeric(row, errors='coerce').values
-    VF_2D = convertVF_to_2D(values)   # ← use the result
-
-    # criterion 1: cluster of 2 points with TD < -10 dB
-    if has_cluster(VF_2D < -10, min_size=2):
-        return "GL"
-
-    # criterion 2: cluster of 3 points with TD < -8 dB
-    if has_cluster(VF_2D < -8, min_size=3):
-        return "GL"
-
-    return "Non-GL"
-
 ########################################################
 ########################################################
 
 
-def Kangs_clf(row):
-    values = pd.to_numeric(row, errors='coerce').values
+# def Kangs_clf(row):
+#     values = pd.to_numeric(row, errors='coerce').values
+#     td_grid = convertVF_to_2D(values)
+
+#     # criterion 1: cluster of 3 contiguous points with TD < -5 dB
+#     if has_cluster(td_grid < -5, min_size=3):
+#         return 'GL'
+#     # criterion 2: cluster of 2 contiguous points with TD < -10 dB
+#     if has_cluster(td_grid < -10, min_size=2):
+#         return 'GL'
+#     return 'Non-GL'
+
+
+# def Fn_Kangs(df):    
+#     pt_cols = _get_vf_cols(df, colname='td')
+#     out = df.copy()
+#     out['Kangs_clf'] = out[pt_cols].apply(Kangs_clf, axis=1)
+#     return out
+
+
+def Kangs_clf_reason(row):
+
+    values = pd.to_numeric(row, errors="coerce").values
     td_grid = convertVF_to_2D(values)
 
-    # criterion 1: cluster of 3 contiguous points with TD < -5 dB
+    reasons = []
+
+    # Criterion 1
     if has_cluster(td_grid < -5, min_size=3):
-        return 'GL'
-    # criterion 2: cluster of 2 contiguous points with TD < -10 dB
+        reasons.append("Cluster of 3 points with TD < -5 dB")
+
+    # Criterion 2
     if has_cluster(td_grid < -10, min_size=2):
-        return 'GL'
-    return 'Non-GL'
+        reasons.append("Cluster of 2 points with TD < -10 dB")
+
+    if reasons:
+        return "GL", "; ".join(reasons)
+
+    return "Non-GL", ""
 
 
-def Fn_Kangs(df):    
-    pt_cols = _get_vf_cols(df, colname='td')
+def Fn_Kangs(df):
+
+    pt_cols = _get_vf_cols(df, colname="td")
+
     out = df.copy()
-    out['Kangs_clf'] = out[pt_cols].apply(Kangs_clf, axis=1)
-    return out
 
+    res = out[pt_cols].apply(Kangs_clf_reason, axis=1)
+
+    out["Kangs_clf"] = res.apply(lambda x: x[0])
+    out["Kangs_reason"] = res.apply(lambda x: x[1])
+
+    return out
 
 ########################################################
 ########################################################
@@ -639,6 +773,11 @@ def Foster_clf(row):
 def Fn_Foster(df):
     out = df.copy()
     out['Foster_clf'] = out.apply(Foster_clf, axis=1)
+    out["Foster_reason"] = np.where(
+            out["Foster_clf"] == "GL",
+            "GHT outside AND cluster of 3 PDP points < 5%",
+            "",
+        )
     return out
 
 
