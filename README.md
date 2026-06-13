@@ -160,10 +160,8 @@ from PyVisualFields.utils import print_vf_summary, investigate_vf_df
 <img src="./imgs/1_(3).png" width="50%">
 <img src="./imgs/1_(4).png" width="50%">
 <img src="./imgs/1_(5).png" width="50%">
-
 <img src="./imgs/1_(6).png" width="50%">
 <img src="./imgs/1_(8).png" width="50%">
-<img src="./imgs/1_(14).png" width="50%">
 <img src="./imgs/1_(7).png" width="50%">
 <img src="./imgs/1_(9).png" width="50%">
 <img src="./imgs/1_(10).png" width="50%">
