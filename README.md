@@ -72,15 +72,15 @@ Functions based on _vfprogression_ package accept 24-2 or 30-2 visual field meas
 
 -   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   __function__  &nbsp; ----------------------------- &nbsp; __description__ &nbsp; ----------- &nbsp; __from package__ </br> </br>
 
-
-- utils.canonicalize_vf_df() &nbsp; ----------- &nbsp; canonicalize the VF data &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
+<small>
+- utils.canonicalize_vf_df() &nbsp; ----------- &nbsp; canonicalize the VF data &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ </br>
 - utils.canonicalize_vf_df(, sort_byDateAge=True) &nbsp; ----------- &nbsp; canonicalize the VF data and sort based on date or age of for each patient &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
 - utils.print_vf_summary() &nbsp; ----------- &nbsp; investigate the VF data and print a summary of all available information &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_
 - utils.investigate_vf_df() &nbsp; ----------- &nbsp; investigate the VF data and return a summary of all available information &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
 - utils.vf_blocks() &nbsp; ----------- &nbsp; investigate available VF data (blocks: s, td, pd, tdp, pdp) &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
 - utils.missing_blocks() &nbsp; ----------- &nbsp; investigate VF data and returns missing blocks &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
 - utils.compute_missing_blocks() &nbsp; ----------- &nbsp; Will calculate the missing blocks. Based on current NV settings. See Deviation Analysis demo &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
-
+</small>
 
 - visualFields.data_vfpwgRetest24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
 - visualFields.data_vfpwgRetest24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
@@ -145,7 +145,7 @@ Functions based on _vfprogression_ package accept 24-2 or 30-2 visual field meas
 
 ## Snapshots
 
-[See \url{}](https://github.com/mohaEs/PyVisualField)
+[See Github Repository](https://github.com/mohaEs/PyVisualField)
 
 <img src="./imgs/1_(12).png" width="50%">
 <img src="./imgs/1_(13).png" width="50%">
