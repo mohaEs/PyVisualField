@@ -68,79 +68,121 @@ Version 2 has been validated exclusively for the 24-2 format. Additionally, the 
 
 Functions based on _vfprogression_ package accept 24-2 or 30-2 visual field measurement while functions based on _visualFields_ also accept 10-2. 
 
-</br>
 
--   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   __function__  &nbsp; ----------------------------- &nbsp; __description__ &nbsp; ----------- &nbsp; __from package__ </br> </br>
+# Function Reference
 
-<small>
-- utils.canonicalize_vf_df() &nbsp; ----------- &nbsp; canonicalize the VF data &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ </br>
-- utils.canonicalize_vf_df(, sort_byDateAge=True) &nbsp; ----------- &nbsp; canonicalize the VF data and sort based on date or age of for each patient &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
-- utils.print_vf_summary() &nbsp; ----------- &nbsp; investigate the VF data and print a summary of all available information &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_
-- utils.investigate_vf_df() &nbsp; ----------- &nbsp; investigate the VF data and return a summary of all available information &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
-- utils.vf_blocks() &nbsp; ----------- &nbsp; investigate available VF data (blocks: s, td, pd, tdp, pdp) &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
-- utils.missing_blocks() &nbsp; ----------- &nbsp; investigate VF data and returns missing blocks &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
-- utils.compute_missing_blocks() &nbsp; ----------- &nbsp; Will calculate the missing blocks. Based on current NV settings. See Deviation Analysis demo &nbsp; ----------- &nbsp; _PyVisualFieldsV2[1]_ 
-</small>
+<details>
+<summary><b>Data Utilities </b></summary>
+## Data Utilities
 
-- visualFields.data_vfpwgRetest24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
-- visualFields.data_vfpwgRetest24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
+| Function | Description | Reference |
+|----------|-------------|--------|
+| `utils.canonicalize_vf_df()` | Canonicalize VF data to PyVisualFields format | PyVisualFieldsV2 |
+| `utils.canonicalize_vf_df(, sort_byDateAge=True)` | Canonicalize and sort VFs by date/age within each patient | PyVisualFieldsV2 |
+| `utils.print_vf_summary()` | Print a summary of available VF information | PyVisualFieldsV2 |
+| `utils.investigate_vf_df()` | Return a summary of available VF information | PyVisualFieldsV2 |
+| `utils.vf_blocks()` | Identify available VF blocks (`s`, `td`, `pd`, `tdp`, `pdp`) | PyVisualFieldsV2 |
+| `utils.missing_blocks()` | Identify missing VF blocks | PyVisualFieldsV2 |
+| `utils.compute_missing_blocks()` | Compute missing blocks using current normative setting NV | PyVisualFieldsV2 |
+</details>
 
-- visualFields.data_vfpwgRetest24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
-- visualFields.data_vfctrSunyiu24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
-- visualFields.data_vfpwgSunyiu24d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
-- visualFields.data_vfctrSunyiu10d2() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
--  visualFields.data_vfctrIowaPC26() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ 
-- visualFields.data_vfctrIowaPeri() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _visualFields[4]_ </br></br>
-- vfprogression.data_vfseries() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[3]_ 
-- vfprogression.data_vfi() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[3]_ 
--  vfprogression.data_cigts() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[3]_ 
-- vfprogression.data_plrnouri2012() &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[3]_ 
-- vfprogression.data_schell2014()  &nbsp; ----------- &nbsp; VF data &nbsp; ----------- &nbsp; _vfprogression[3]_  </br></br>
-- vfprogression.get_score_AGIS() &nbsp; ----------- &nbsp;  get AGIS score &nbsp; ----------- &nbsp; _vfprogression[3]_
-- vfprogression.get_score_CIGTS() &nbsp; ----------- &nbsp;  get CIGTS score &nbsp; ----------- &nbsp; _vfprogression[3]_
-- vfprogression.progression_cigts() &nbsp; ----------- &nbsp;  progression analysis by CIGTS &nbsp; ----------- &nbsp; _vfprogression[3]_
-- vfprogression.progression_plrnouri2012() &nbsp; ----------- &nbsp;  progression analysis by Nouri et al. &nbsp; ----------- &nbsp; _vfprogression[3]_
-- vfprogression.progression_vfi()&nbsp; ----------- &nbsp;  progression analysis by VFi measurements &nbsp; ----------- &nbsp; _vfprogression[3]_
-- vfprogression.progression_schell2014()&nbsp; ----------- &nbsp;  progression analysis by schell et al. &nbsp; ----------- &nbsp; _vfprogression[3]_
-- vfprogression.progression_agis()&nbsp; ----------- &nbsp;  progression analysis by AGIS &nbsp; ----------- &nbsp; _vfprogression[3]_ </br></br> 
-- visualFields.glr() &nbsp; ----------- &nbsp;  Linear regression with global indices  &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.plr() &nbsp; ----------- &nbsp;  pointwise linear regression (PLR)  &nbsp; ----------- &nbsp; _visualFields[4]_  
-- visualFields.poplr() &nbsp; ----------- &nbsp;  PoPLR regression analysis  &nbsp; ----------- &nbsp; _visualFields[4]_ </br></br>
-- vfprogression.plotValues() &nbsp; ----------- &nbsp; plot/save VF values (s, td, pd) &nbsp; ----------- &nbsp; _vfprogression[3]_ 
-- vfprogression.plotProbabilities() ----------- &nbsp; plot/save tdp/pdp values (tdp, pdp) &nbsp; ----------- &nbsp; _vfprogression[3]_
-- visualFields.vfplot() ----------- &nbsp; plot/save s/td/pd/tds/pds values (s, td, pd) &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplot_s()  &nbsp; ----------- &nbsp; alias for vfplot(type='s') &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplot_td()  &nbsp; ----------- &nbsp; alias for vfplot(type='td') &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplot_pd() &nbsp; ----------- &nbsp; alias for vfplot(type='pd') &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplot_tds()  &nbsp; ----------- &nbsp; alias for vfplot(type='tds') (s, td, pd) &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplot_pds()  &nbsp; ----------- &nbsp; alias for vfplot(type='pds') (s, td, pd) &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.plotProbColormap() &nbsp; ----------- &nbsp; show colormap of probablies &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplotsparklines() &nbsp; ----------- &nbsp; plot/save sparklines (s, td, pd) &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplotsparklines_s()  &nbsp; ----------- &nbsp; alias for vfplotsparklines(type='s') &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplotsparklines_td() &nbsp; ----------- &nbsp; alias for vfplotsparklines(type='td') &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplotsparklines_pd() &nbsp; ----------- &nbsp; alias for vfplotsparklines(type='pd') &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vfplotplr() &nbsp; ----------- &nbsp; -- &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.vflegoplot() &nbsp; ----------- &nbsp; -- &nbsp; ----------- &nbsp; _visualFields[4]_ 
-- currentNV = visualFields.getnv() &nbsp; ----------- &nbsp; get current normative environment/setting (NV) &nbsp; ----------- &nbsp; _visualFields[4]_ 
-- visualFields.vfsfa() [obsolete] &nbsp; ----------- &nbsp; Generates one-page report of single field analyses as a pdf file &nbsp; ----------- &nbsp; _visualFields[4]_  </br></br>
-- visualFields.getallvalues() [obsolete] &nbsp; ----------- &nbsp; compute all td, pd, pdp, tdp, gl, gh,glp based on the current NV &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.gettd() &nbsp; ----------- &nbsp; compute td &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.getgl() &nbsp; ----------- &nbsp;  compute gl &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.gettdp() &nbsp; ----------- &nbsp; compute tdp &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.getpd() &nbsp; ----------- &nbsp;  compute pd &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.getgh() &nbsp; ----------- &nbsp;  compute gh &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.getpdp() &nbsp; ----------- &nbsp;  compute pdp &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.getglp() &nbsp; ----------- &nbsp;  compute gi &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.get_info_normvals() &nbsp; ----------- &nbsp; Get all avialbale predefined normalization environments/settings &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.setnv() &nbsp; ----------- &nbsp; change/set normalization environment based on a predefined NV &nbsp; ----------- &nbsp; _visualFields[4]_
-- visualFields.nvgenerate &nbsp; ----------- &nbsp; generate a normalization environment based new data &nbsp; ----------- &nbsp; _visualFields[4]_</br></br>
 
-- PyGlaucoMetrics.Fn_HAP2 &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: HAP2 &nbsp; ----------- &nbsp; PyGlaucoMetrics[1,5]_
-- PyGlaucoMetrics.Fn_HAP2_part2 &nbsp; ----------- &nbsp; determine VF defect severity based on criteria: HAP2 partII &nbsp; ----------- &nbsp; PyGlaucoMetrics[1,5]_
-- PyGlaucoMetrics.Fn_UKGTS &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: UKGTS &nbsp; ----------- &nbsp; PyGlaucoMetrics[1,5]_
-- PyGlaucoMetrics.Fn_LoGTS &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: LoGTS &nbsp; ----------- &nbsp; PyGlaucoMetrics[1,5]_
-- PyGlaucoMetrics.Fn_Foster &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: Foster &nbsp; ----------- &nbsp; PyGlaucoMetrics[1,5]_
-- PyGlaucoMetrics.Fn_Kangs &nbsp; ----------- &nbsp; determine glaucoma cases based on criteria: Kangs &nbsp; ----------- &nbsp; PyGlaucoMetrics[1,5]_
+<details>
+<summary><b>Example Datasets</b></summary>
+## Example Datasets
+
+| Function | Description | Reference |
+|----------|-------------|--------|
+| `visualFields.data_vfpwgRetest24d2()` | Humphrey 24-2 retest dataset | visualFields |
+| `visualFields.data_vfctrSunyiu24d2()` | SUNY-IU control dataset | visualFields |
+| `visualFields.data_vfpwgSunyiu24d2()` | SUNY-IU glaucoma dataset | visualFields |
+| `visualFields.data_vfctrSunyiu10d2()` | SUNY-IU 10-2 control dataset | visualFields |
+| `visualFields.data_vfctrIowaPC26()` | Iowa PC26 dataset | visualFields |
+| `visualFields.data_vfctrIowaPeri()` | Iowa Peri dataset | visualFields |
+| `vfprogression.data_vfseries()` | Longitudinal VF series dataset | vfprogression |
+| `vfprogression.data_vfi()` | VFI dataset | vfprogression |
+| `vfprogression.data_cigts()` | CIGTS dataset | vfprogression |
+| `vfprogression.data_plrnouri2012()` |  | vfprogression |
+| `vfprogression.data_schell2014()` |  | vfprogression |
+</details>
+
+
+<details>
+<summary><b>Deviation Analysis </b></summary>
+## Deviation Analysis
+
+| Function | Description | Reference |
+|----------|-------------|--------|
+| `visualFields.getnv()` | Get current normative environment/setting | visualFields |
+| `visualFields.setnv()` |  change/set normalization environment based on a predefined NV | visualFields |
+| `visualFields.get_info_normvals()` | all avialbale predefined normalization environments/settings | visualFields |
+| `visualFields.nvgenerate()` |generate a normalization environment based new data | visualFields |
+| `utils.compute_missing_blocks()` | Compute missing blocks ( `td`, `pd`, `tdp`, `pdp`) using current normative setting NV | PyVisualFieldsV2 |
+| `visualFields.gettd()` | compute td using current normative setting NV | visualFields |
+| `visualFields.gettdp()` | compute tdp using current normative setting NV | visualFields |
+| `visualFields.getpd()` | compute pd using current normative setting NV | visualFields |
+| `visualFields.getpdp()` | compute pdp using current normative setting NV | visualFields |
+| `visualFields.getgh()` | compute general heigh using current normative setting NV | visualFields |
+| `visualFields.getgl()` | compute gl (global incices, e.g. msens (MS), tmd (i.e. MD, but weighted mean of TD values), pmd (i.e. weighted mean of PD values) psd, vfi, gh ) using current normative setting NV | visualFields |
+| `visualFields.getglp()` | compute gl's probabilities (e.g. mdprob, psdprob) using current normative setting NV | visualFields |
+</details>
+
+<details>
+<summary><b>Progression Analysis </b></summary>
+## Progression Analysis 
+
+| Function | Description |Reference |
+|----------|-------------|--------|
+| `vfprogression.get_score_AGIS()` | Compute AGIS score | vfprogression |
+| `vfprogression.get_score_CIGTS()` | Compute CIGTS score | vfprogression |
+| `vfprogression.progression_agis()` | AGIS progression analysis | vfprogression |
+| `vfprogression.progression_cigts()` | CIGTS progression analysis | vfprogression |
+| `vfprogression.progression_vfi()` | VFI progression analysis | vfprogression |
+| `vfprogression.progression_plrnouri2012()` | Nouri et al. progression analysis | vfprogression |
+| `vfprogression.progression_schell2014()` | Schell et al. progression analysis | vfprogression |
+| `visualFields.glr()` | Linear regression with global indices | visualFields |
+| `visualFields.plr()` | Pointwise linear regression (PLR) | visualFields |
+| `visualFields.poplr()` | PoPLR regression analysis  | visualFields |
+</details>
+
+
+<details>
+<summary><b>Glaucoma Diagnostic</b></summary>
+
+## Glaucoma Diagnostic Criteria (PyGlaucoMetrics)
+
+| Function | Description | Reference |
+|----------|-------------|-----------|
+| `PyGlaucoMetrics.Fn_HAP2()` | HAP2 glaucoma diagnosis | PyGlaucoMetrics[1,5] |
+| `PyGlaucoMetrics.Fn_HAP2_part2()` | HAP2 severity classification | PyGlaucoMetrics[1,5] |
+| `PyGlaucoMetrics.Fn_UKGTS()` | UKGTS criteria |PyGlaucoMetrics[1,5] |
+| `PyGlaucoMetrics.Fn_LoGTS()` | LoGTS criteria |PyGlaucoMetrics[1,5] |
+| `PyGlaucoMetrics.Fn_Foster()` | Foster criteria |PyGlaucoMetrics[1,5] |
+| `PyGlaucoMetrics.Fn_Kangs()` | Kang's criteria |PyGlaucoMetrics[1,5] |
+
+</details>
+
+
+<details>
+<summary><b>Visualization Functions</b></summary>
+## Visualization
+
+| Function | Description |
+|----------|-------------|
+| `vfprogression.plotValues()` | Plot sensitivity, TD, or PD values |
+| `vfprogression.plotProbabilities()` | Plot TDP or PDP probability maps |
+| `visualFields.vfplot()` | Generic VF plotting function |
+| `visualFields.vfplot_s()` | Sensitivity plot |
+| `visualFields.vfplot_td()` | Total deviation plot |
+| `visualFields.vfplot_pd()` | Pattern deviation plot |
+| `visualFields.vfplotsparklines()` | Sparkline visualization |
+| `visualFields.vflegoplot()` | Lego plot visualization |
+| `visualFields.plotProbColormap()` | Probability colormap legend |
+| `visualFields.vfplotplr()` |  |
+| `utils.Fn_report()` | Make a report of an eye | PyVisualFieldsV2 |
+</details>
+
+
 
 
 ## Snapshots

@@ -2,6 +2,7 @@
 ###### Requirements with Version Specifiers ######
 
 "numpy",
-        "pandas",
-        "scipy",
-        "matplotlib",
+"pandas",
+"scipy",
+"matplotlib",
+"PyMuPDF"

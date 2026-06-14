@@ -227,39 +227,39 @@ def _get_sensitivity_cols(df):
     return cols
 
 
-def _sort_vf_dataframe(df_vf_py):
-    """Return a copy sorted by date when a date column is present."""
-    df_sorted = df_vf_py.copy()
-    if 'date' in df_sorted.columns:
-        try:
-            sort_key = pd.to_datetime(df_sorted['date'], errors='coerce')
-            if sort_key.notna().any():
-                df_sorted = df_sorted.assign(_sort_date=sort_key)
-                df_sorted = df_sorted.sort_values(['_sort_date']).drop(columns=['_sort_date'])
-            else:
-                df_sorted = df_sorted.sort_values('date')
-        except Exception:
-            df_sorted = df_sorted.sort_values('date')
-    return df_sorted.reset_index(drop=True)
+# def _sort_vf_dataframe(df_vf_py):
+#     """Return a copy sorted by date when a date column is present."""
+#     df_sorted = df_vf_py.copy()
+#     if 'date' in df_sorted.columns:
+#         try:
+#             sort_key = pd.to_datetime(df_sorted['date'], errors='coerce')
+#             if sort_key.notna().any():
+#                 df_sorted = df_sorted.assign(_sort_date=sort_key)
+#                 df_sorted = df_sorted.sort_values(['_sort_date']).drop(columns=['_sort_date'])
+#             else:
+#                 df_sorted = df_sorted.sort_values('date')
+#         except Exception:
+#             df_sorted = df_sorted.sort_values('date')
+#     return df_sorted.reset_index(drop=True)
 
 
-def _canonicalize_vf_dataframe(df_vf_py):
-    """Normalize point-column names to l1..lN and ensure an age column exists."""
-    df_sorted = _sort_vf_dataframe(df_vf_py)
-    sens_cols = _get_sensitivity_cols(df_sorted)
-    if not sens_cols:
-        raise ValueError('No visual field sensitivity columns found in the input dataframe.')
+# def _canonicalize_vf_dataframe(df_vf_py):
+#     """Normalize point-column names to l1..lN and ensure an age column exists."""
+#     df_sorted = _sort_vf_dataframe(df_vf_py)
+#     sens_cols = _get_sensitivity_cols(df_sorted)
+#     if not sens_cols:
+#         raise ValueError('No visual field sensitivity columns found in the input dataframe.')
 
-    meta_cols = [c for c in df_sorted.columns if c not in sens_cols]
-    df_canonical = df_sorted[meta_cols].copy().reset_index(drop=True)
-    vf_cols = [f'l{i}' for i in range(1, len(sens_cols) + 1)]
-    for idx, col in enumerate(sens_cols, start=1):
-        df_canonical[f'l{idx}'] = pd.to_numeric(df_sorted[col], errors='coerce')
+#     meta_cols = [c for c in df_sorted.columns if c not in sens_cols]
+#     df_canonical = df_sorted[meta_cols].copy().reset_index(drop=True)
+#     vf_cols = [f'l{i}' for i in range(1, len(sens_cols) + 1)]
+#     for idx, col in enumerate(sens_cols, start=1):
+#         df_canonical[f'l{idx}'] = pd.to_numeric(df_sorted[col], errors='coerce')
 
-    if 'age' not in df_canonical.columns:
-        df_canonical['age'] = 60.0
-    df_canonical['age'] = pd.to_numeric(df_canonical['age'], errors='coerce').fillna(60.0)
-    return df_canonical, vf_cols
+#     if 'age' not in df_canonical.columns:
+#         df_canonical['age'] = 60.0
+#     df_canonical['age'] = pd.to_numeric(df_canonical['age'], errors='coerce').fillna(60.0)
+#     return df_canonical, vf_cols
 
 
 def _row_to_array(row, cols):
@@ -289,15 +289,15 @@ def _nanmean_columns(data):
     return out
 
 
-def _compute_plot_dataframes(df_vf_py):
-    """Compute canonical VF and derived TD/PD/probability/global-index dataframes."""
-    df_vf, vf_cols = _canonicalize_vf_dataframe(df_vf_py)
-    df_td = py_gettd(df_vf)
-    df_pd = py_getpd(df_td)
-    df_tdp = py_gettdp(df_td)
-    df_pdp = py_getpdp(df_pd)
-    df_gi = py_getgl(df_vf)
-    return df_vf, vf_cols, df_td, df_pd, df_tdp, df_pdp, df_gi
+# def _compute_plot_dataframes(df_vf_py):
+#     """Compute canonical VF and derived TD/PD/probability/global-index dataframes."""
+#     df_vf, vf_cols = _canonicalize_vf_dataframe(df_vf_py)
+#     df_td = py_gettd(df_vf)
+#     df_pd = py_getpd(df_td)
+#     df_tdp = py_gettdp(df_td)
+#     df_pdp = py_getpdp(df_pd)
+#     df_gi = py_getgl(df_vf)
+#     return df_vf, vf_cols, df_td, df_pd, df_tdp, df_pdp, df_gi
 
 
 def _simple_slope(x, y):
@@ -1528,11 +1528,12 @@ def glr(df_gi_py, type="md", testSlope=0):
 
     col = _GLR_TYPE_COL[type]
 
-    # Accept getgl() output (has 'tmd') or a raw VF dataframe
-    if col not in df_gi_py.columns:
-        df_gi_py = py_getgl(df_gi_py)
+    # # Accept getgl() output (has 'tmd') or a raw VF dataframe
+    # if col not in df_gi_py.columns:
+    #     df_gi_py = py_getgl(df_gi_py)
 
-    df_sorted = _sort_vf_dataframe(df_gi_py)
+    # df_sorted = _sort_vf_dataframe(df_gi_py)
+    df_sorted = df_gi_py.copy()
     years = _parse_years(df_sorted)
     data  = df_sorted[col].values.astype(float)
 

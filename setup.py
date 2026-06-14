@@ -40,6 +40,7 @@ setuptools.setup(
         "pandas",
         "scipy",
         "matplotlib",
+        "PyMuPDF",
     ],
     python_requires=">=3.6",
 )

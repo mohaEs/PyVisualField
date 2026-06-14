@@ -597,7 +597,9 @@ def py_getgl(df_vf: pd.DataFrame) -> pd.DataFrame:
     """
 
     target_cols = ["msens", "ssens", "tmd", "tsd", "pmd", "psd", "gh", "vfi"]
+    available = [c for c in target_cols if c in df_vf.columns] 
     missing = [c for c in target_cols if c not in df_vf.columns]
+    print(f"==> py_getgl: Already available global indices: {available}")
     print(f"==> py_getgl: missing global indices to compute: {missing}")
 
     point_prefixes = ("l", "td", "pd", "tdp", "pdp")
@@ -757,47 +759,110 @@ def py_getgl(df_vf: pd.DataFrame) -> pd.DataFrame:
 
     return result
 
+# def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
+#     """Global indices probability values (left-tailed for means, right for SDs)."""
+#     nv       = _nv()
+#     lut_dict = nv["glp_lut"]
+#     probs    = nv["glp_probs"]
+#     idxm_0   = [i - 1 for i in (nv["glp_idxm"] or [])]
+#     idxs_0   = [i - 1 for i in (nv["glp_idxs"] or [])]
+
+#     gl_cols   = ["msens", "ssens", "tmd", "tsd", "pmd", "psd", "gh", "vfi"]
+#     mean_cols = [gl_cols[i] for i in idxm_0 if i < len(gl_cols)]
+#     std_cols  = [gl_cols[i] for i in idxs_0  if i < len(gl_cols)]
+#     n_probs   = len(probs)
+
+#     prob_vals = np.array([_parse_lut_value(p) if isinstance(p, str) else float(p)
+#                           for p in probs])
+#     df_gp = df_gi.copy()
+
+#     def _build_col_lut(col):
+#         raw = lut_dict.get(col, [np.nan] * n_probs)
+#         return np.array([_parse_lut_value(v) if isinstance(v, str) else float(v)
+#                          for v in raw])
+
+#     for col in mean_cols:
+#         if col not in df_gi.columns:
+#             continue
+#         cutoffs = _build_col_lut(col)
+#         vals = df_gi[col].values.astype(float)
+#         vp   = np.full(len(vals), np.nan)
+#         for i in range(n_probs - 1, 0, -1):
+#             vp[vals < cutoffs[i]] = prob_vals[i]
+#         df_gp[col] = vp
+
+#     for col in std_cols:
+#         if col not in df_gi.columns:
+#             continue
+#         cutoffs = _build_col_lut(col)
+#         vals = df_gi[col].values.astype(float)
+#         vp   = np.full(len(vals), np.nan)
+#         for i in range(n_probs - 1, 0, -1):
+#             vp[vals > cutoffs[i]] = prob_vals[i]
+#         df_gp[col] = vp
+
+#     return df_gp
+
 def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
-    """Global indices probability values (left-tailed for means, right for SDs)."""
-    nv       = _nv()
+    """Global indices probability values."""
+
+    nv = _nv()
     lut_dict = nv["glp_lut"]
-    probs    = nv["glp_probs"]
-    idxm_0   = [i - 1 for i in (nv["glp_idxm"] or [])]
-    idxs_0   = [i - 1 for i in (nv["glp_idxs"] or [])]
+    probs = nv["glp_probs"]
+    idxm_0 = [i - 1 for i in (nv["glp_idxm"] or [])]
+    idxs_0 = [i - 1 for i in (nv["glp_idxs"] or [])]
 
-    gl_cols   = ["msens", "ssens", "tmd", "tsd", "pmd", "psd", "gh", "vfi"]
+    gl_cols = ["msens", "ssens", "tmd", "tsd", "pmd", "psd", "gh", "vfi"]
+
     mean_cols = [gl_cols[i] for i in idxm_0 if i < len(gl_cols)]
-    std_cols  = [gl_cols[i] for i in idxs_0  if i < len(gl_cols)]
-    n_probs   = len(probs)
+    std_cols = [gl_cols[i] for i in idxs_0 if i < len(gl_cols)]
 
-    prob_vals = np.array([_parse_lut_value(p) if isinstance(p, str) else float(p)
-                          for p in probs])
+    n_probs = len(probs)
+
+    prob_vals = np.array([
+        _parse_lut_value(p) if isinstance(p, str) else float(p)
+        for p in probs
+    ])
+
     df_gp = df_gi.copy()
+
+    def _prob_col_name(col):
+        return f"{col}prob"
 
     def _build_col_lut(col):
         raw = lut_dict.get(col, [np.nan] * n_probs)
-        return np.array([_parse_lut_value(v) if isinstance(v, str) else float(v)
-                         for v in raw])
+        return np.array([
+            _parse_lut_value(v) if isinstance(v, str) else float(v)
+            for v in raw
+        ])
 
+    # Left-tailed: lower values are abnormal
     for col in mean_cols:
         if col not in df_gi.columns:
             continue
+
         cutoffs = _build_col_lut(col)
         vals = df_gi[col].values.astype(float)
-        vp   = np.full(len(vals), np.nan)
+        vp = np.full(len(vals), np.nan)
+
         for i in range(n_probs - 1, 0, -1):
             vp[vals < cutoffs[i]] = prob_vals[i]
-        df_gp[col] = vp
 
+        df_gp[_prob_col_name(col)] = vp
+
+    # Right-tailed: higher values are abnormal
     for col in std_cols:
         if col not in df_gi.columns:
             continue
+
         cutoffs = _build_col_lut(col)
         vals = df_gi[col].values.astype(float)
-        vp   = np.full(len(vals), np.nan)
+        vp = np.full(len(vals), np.nan)
+
         for i in range(n_probs - 1, 0, -1):
             vp[vals > cutoffs[i]] = prob_vals[i]
-        df_gp[col] = vp
+
+        df_gp[_prob_col_name(col)] = vp
 
     return df_gp
 
