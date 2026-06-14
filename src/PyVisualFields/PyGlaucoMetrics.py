@@ -311,11 +311,14 @@ def HAP2_part2_severity(row):
     l_cols = [f"l{i}" for i in range(1, 55) if f"l{i}" in row.index]
     pdp_cols = [f"pdp{i}" for i in range(1, 55) if f"pdp{i}" in row.index]
 
-    if "md" not in row.index:
-        return "Unknown"
+    # if "md" not in row.index:
+    #     return "Unknown"
 
-    md = pd.to_numeric(row["md"], errors="coerce")
-    if pd.isna(md):
+    if "md" in row.index and pd.notna(row["md"]):
+        md = pd.to_numeric(row["md"], errors="coerce")
+    elif "tmd" in row.index and pd.notna(row["tmd"]):
+        md = pd.to_numeric(row["tmd"], errors="coerce")
+    else:
         return "Unknown"
 
     sens = pd.to_numeric(row[l_cols], errors="coerce")
@@ -371,9 +374,25 @@ def HAP2_part2_severity(row):
         return "Early"
 
     # -------------------------
-    # Otherwise moderate
+    # Moderate defect
+    # At least one criterion
     # -------------------------
-    return "Moderate"
+    only_one_hemifield_central_lt15 = (
+        (sup_lt15 and not inf_lt15)
+        or (inf_lt15 and not sup_lt15)
+    )
+
+    moderate = (
+        (-12 <= md <= -6)
+        or (only_one_hemifield_central_lt15 and not any_central_0)
+        or (13 <= n_pdp_5 <= 26)
+        or (5 <= n_pdp_1 <= 13)
+    )
+
+    if moderate:
+        return "Moderate"
+
+    return ""
 
 
 def Fn_HAP2_part2(df):
