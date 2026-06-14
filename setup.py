@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="PyVisualFields",
-    version="2.0.4",
+    version="2.0.5",
     author="Mohammad Eslami, Bharath Erusalagandi, Mousa Moradi",
     author_email="Mohammad_eslami@meei.harvard.edu",
     description="A python toolkit for visual field analysis",
@@ -16,14 +16,15 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/mohaEs/PyVisualField/issues",
         "Demo Normalization": "https://github.com/mohaEs/PyVisualField/blob/main/demo_2_Deviation_Analysis.ipynb",
         "Demo Plotting": "https://github.com/mohaEs/PyVisualField/blob/main/demo_3_Plotting.ipynb",
-        "Demo Prorgression Analysis": "https://github.com/mohaEs/PyVisualField/blob/main/demo_4_Analysis.ipynb",
+        "Demo Progression Analysis": "https://github.com/mohaEs/PyVisualField/blob/main/demo_4_ProgressionAnalysis.ipynb",
         "Demo Data": "https://github.com/mohaEs/PyVisualField/blob/main/demo_1_Data.ipynb",    
         "Demo Glaucoma Detection": "https://github.com/mohaEs/PyVisualField/blob/main/demo5_PyGlaucoMetrics.ipynb",    
         "Harvard Ophthalmology AI LAB": "https://ophai.hms.harvard.edu/" 
     },
+    license="BSD-3-Clause",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
     package_dir={"": "src"},
