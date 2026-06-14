@@ -38,7 +38,7 @@ The list and description of all functions are available at [All_Functions](#list
 - Data [demo_1_Data.ipynb](demo_1_Data.ipynb)
 - Normalization and deviation analysis [demo_2_Deviation_Analysis.ipynb](demo_2_Deviation_Analysis.ipynb)
 - Plotting [demo_3_Plotting.ipynb](demo_3_Plotting.ipynb)
-- Progression Analysis [demo_4_Analysis.ipynb](demo_4_Analysis.ipynb)
+- Progression Analysis [demo_4_ProgressionAnalysis.ipynb](demo_4_ProgressionAnalysis.ipynb)
 - Glaucoma Detection [demo5_PyGlaucoMetrics.ipynb](demo5_PyGlaucoMetrics.ipynb) </br>
 
 __Notice:__ PyGlaucoMetric is also available as a seperatre PyPI package and GitHub repository (built upon PyVisualFields), which includes a graphical user interface (GUI) for progression analysis and glaucoma detection. Indeed PyVisualFields is designed as a developer-facing package library, while pyGlaucoMetric serves as an accessible GUI application implementing selected visual field analysis components.

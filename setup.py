@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="PyVisualFields",
-    version="2.0.6",
+    version="2.0.8",
     author="Mohammad Eslami, Bharath Erusalagandi, Mousa Moradi",
     author_email="Mohammad_eslami@meei.harvard.edu",
     description="A python toolkit for visual field analysis",

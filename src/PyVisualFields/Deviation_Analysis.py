@@ -803,19 +803,111 @@ def py_getgl(df_vf: pd.DataFrame) -> pd.DataFrame:
 
 #     return df_gp
 
+# def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
+#     """Global indices probability values."""
+
+#     nv = _nv()
+#     lut_dict = nv["glp_lut"]
+#     probs = nv["glp_probs"]
+#     idxm_0 = [i - 1 for i in (nv["glp_idxm"] or [])]
+#     idxs_0 = [i - 1 for i in (nv["glp_idxs"] or [])]
+
+#     gl_cols = ["msens", "ssens", "tmd", "tsd", "pmd", "psd", "gh", "vfi"]
+
+#     mean_cols = [gl_cols[i] for i in idxm_0 if i < len(gl_cols)]
+#     std_cols = [gl_cols[i] for i in idxs_0 if i < len(gl_cols)]
+
+#     n_probs = len(probs)
+
+#     prob_vals = np.array([
+#         _parse_lut_value(p) if isinstance(p, str) else float(p)
+#         for p in probs
+#     ])
+
+#     df_gp = df_gi.copy()
+
+#     def _prob_col_name(col):
+#         return f"{col}prob"
+
+#     def _build_col_lut(col):
+#         raw = lut_dict.get(col, [np.nan] * n_probs)
+#         return np.array([
+#             _parse_lut_value(v) if isinstance(v, str) else float(v)
+#             for v in raw
+#         ])
+
+#     # Left-tailed: lower values are abnormal
+#     for col in mean_cols:
+#         if col not in df_gi.columns:
+#             continue
+
+#         cutoffs = _build_col_lut(col)
+#         vals = df_gi[col].values.astype(float)
+#         vp = np.full(len(vals), np.nan)
+
+#         for i in range(n_probs - 1, 0, -1):
+#             vp[vals < cutoffs[i]] = prob_vals[i]
+
+#         df_gp[_prob_col_name(col)] = vp
+
+#     # Right-tailed: higher values are abnormal
+#     for col in std_cols:
+#         if col not in df_gi.columns:
+#             continue
+
+#         cutoffs = _build_col_lut(col)
+#         vals = df_gi[col].values.astype(float)
+#         vp = np.full(len(vals), np.nan)
+
+#         for i in range(n_probs - 1, 0, -1):
+#             vp[vals > cutoffs[i]] = prob_vals[i]
+
+#         df_gp[_prob_col_name(col)] = vp
+
+#     return df_gp
+
+
+
 def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
-    """Global indices probability values."""
+    """Compute missing global-index probability values only."""
 
     nv = _nv()
     lut_dict = nv["glp_lut"]
     probs = nv["glp_probs"]
+
     idxm_0 = [i - 1 for i in (nv["glp_idxm"] or [])]
     idxs_0 = [i - 1 for i in (nv["glp_idxs"] or [])]
 
     gl_cols = ["msens", "ssens", "tmd", "tsd", "pmd", "psd", "gh", "vfi"]
 
     mean_cols = [gl_cols[i] for i in idxm_0 if i < len(gl_cols)]
-    std_cols = [gl_cols[i] for i in idxs_0 if i < len(gl_cols)]
+    std_cols  = [gl_cols[i] for i in idxs_0 if i < len(gl_cols)]
+
+    def _prob_col_name(col):
+        return f"{col}prob"
+
+    # candidates that can be computed
+    computable_cols = [
+        c for c in (mean_cols + std_cols)
+        if c in df_gi.columns
+    ]
+
+    available_gl = [c for c in gl_cols if c in df_gi.columns]
+    missing_gl = [c for c in gl_cols if c not in df_gi.columns]
+
+    print(f"==> py_getglp: available globals: {available_gl}")
+    print(f"==> py_getglp: missing globals: {missing_gl}")
+
+    missing_prob_cols = [
+        c for c in computable_cols
+        if _prob_col_name(c) not in df_gi.columns
+    ]
+
+    print(f"==> py_getglp: missing global probability indices: "
+          f"{[_prob_col_name(c) for c in missing_prob_cols]}")
+
+    if not missing_prob_cols:
+        return df_gi.copy()
 
     n_probs = len(probs)
 
@@ -824,11 +916,6 @@ def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
         for p in probs
     ])
 
-    df_gp = df_gi.copy()
-
-    def _prob_col_name(col):
-        return f"{col}prob"
-
     def _build_col_lut(col):
         raw = lut_dict.get(col, [np.nan] * n_probs)
         return np.array([
@@ -836,9 +923,11 @@ def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
             for v in raw
         ])
 
+    computed = {}
+
     # Left-tailed: lower values are abnormal
     for col in mean_cols:
-        if col not in df_gi.columns:
+        if col not in missing_prob_cols:
             continue
 
         cutoffs = _build_col_lut(col)
@@ -848,11 +937,11 @@ def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
         for i in range(n_probs - 1, 0, -1):
             vp[vals < cutoffs[i]] = prob_vals[i]
 
-        df_gp[_prob_col_name(col)] = vp
+        computed[_prob_col_name(col)] = vp
 
     # Right-tailed: higher values are abnormal
     for col in std_cols:
-        if col not in df_gi.columns:
+        if col not in missing_prob_cols:
             continue
 
         cutoffs = _build_col_lut(col)
@@ -862,10 +951,27 @@ def py_getglp(df_gi: pd.DataFrame) -> pd.DataFrame:
         for i in range(n_probs - 1, 0, -1):
             vp[vals > cutoffs[i]] = prob_vals[i]
 
-        df_gp[_prob_col_name(col)] = vp
+        computed[_prob_col_name(col)] = vp
 
-    return df_gp
+    if "md" in df_gi.columns and "mdprob" not in df_gi.columns:
+        cutoffs = _build_col_lut("tmd")
+        vals = df_gi["md"].values.astype(float)
+        vp = np.full(len(vals), np.nan)
 
+        for i in range(n_probs - 1, 0, -1):
+            vp[vals < cutoffs[i]] = prob_vals[i]
+
+        computed["mdprob"] = vp
+
+    if computed:
+        out = pd.concat(
+            [df_gi.copy(), pd.DataFrame(computed, index=df_gi.index)],
+            axis=1,
+        )
+    else:
+        out = df_gi.copy()
+
+    return out
 
 def py_getallvalues(df_vf: pd.DataFrame):
     """Compute all deviations and global indices in one call.

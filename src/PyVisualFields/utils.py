@@ -119,34 +119,62 @@ META_ALIASES = {
     "vfi": [
         "vfi"
     ],
+    #probability
+    "vfiprob": [
+        "vfi_p", "vfiprob", "vfip"
+    ],
 
     "msens": [
         "msens", "ms", "meansensitivity"
+    ],
+    #probability
+    "msensprob": [
+        "msens_p", "msensprob", "msenp", "ms_p", "msprob", "msp"
     ],
 
     "ssens": [
         "ssens", "ss", "sdsensitivity"
     ],
+    #probability
+    "ssensprob": [
+        "ssens_p", "ssensprob", "lsenp", "ss_p", "ssprob", "ssp"
+    ],
 
     "tmd": [
         "tmd"
+    ],
+    #probability
+    "tmdprob": [
+        "tmd_p", "tmdprob", "tmdp"
     ],
 
     "tsd": [
         "tsd"
     ],
+    #probability
+    "tsdprob": [
+        "tsd_p", "tsdprob", "tsdp"
+    ],
 
     "pmd": [
         "pmd"
+    ],
+    #probability
+    "pmdprob": [
+        "pmd_p", "pmdprob", "pmdp"
     ],
 
     "gh": [
         "gh", "generalheight"
     ],
+    #probability
+    "ghprob": [
+        "gh_p", "ghprob", "ghp"
+    ],
 
     # Reliability
     "fpr": [
-        "fpr"
+        "fpr" 
     ],
 
     "fnr": [
