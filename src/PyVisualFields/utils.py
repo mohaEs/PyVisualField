@@ -297,10 +297,14 @@ def investigate_vf_df(df):
 
     # ---------- Global indices ----------
     global_indices = [
-        "md", "mdprob", "psd", "psdprob",  "ght", "vfi",
-        "msens", "ssens",
-        "tmd", "tsd",
-        "pmd", "gh"
+        "md", "mdprob", "psd", "psdprob",  "ght", 
+        "vfi","vfiprob",
+        "msens", "msensprob"
+        "ssens", 
+        "tmd", "tmdprob"
+        "tsd", 
+        "pmd", "pmdprob"
+        "gh", "ghprob"
     ]
 
     info["global_indices"] = {

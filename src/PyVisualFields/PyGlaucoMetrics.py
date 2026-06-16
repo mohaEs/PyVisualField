@@ -395,12 +395,29 @@ def HAP2_part2_severity(row):
     return ""
 
 
-def Fn_HAP2_part2(df):
-    df
-    out = df.copy()
-    severity = out.apply(HAP2_part2_severity, axis=1)
-    return pd.concat([out, severity.rename("severity(HAP2_part2)")], axis=1).copy()
+# def Fn_HAP2_part2(df):
+#     df
+#     out = df.copy()
+#     severity = out.apply(HAP2_part2_severity, axis=1)
+#     return pd.concat([out, severity.rename("severity(HAP2_part2)")], axis=1).copy()
 
+
+def Fn_HAP2_part2(df):
+    out = df.copy()
+
+    severity = pd.Series("", index=out.index, dtype=object)
+
+    mask = out["HAP2_clf"] == "GL"
+
+    severity.loc[mask] = out.loc[mask].apply(
+        HAP2_part2_severity,
+        axis=1
+    )
+
+    return pd.concat(
+        [out, severity.rename("severity(HAP2_part2)")],
+        axis=1
+    ).copy()
 
 
 ########################################################

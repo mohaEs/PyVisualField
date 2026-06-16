@@ -6,8 +6,8 @@ This packages includes functions for visuald field analysis and display.
 
 https://pypi.org/project/PyVisualFields/
 
-Version 2 is R-independent while maintaining the original module organization. The modules are inspired by vfprogression (Elze et al. [1]) and visualFields (Marin-Franch et al. [2]). 
-Additionally, pyGlaucoMetric has been integrated to enable glaucoma classification based on visual field patterns.
+Version 2 is R-independent while maintaining the original module organization. The modules are inspired by vfprogression (Elze et al. [3]) and visualFields (Marin-Franch et al. [4]). 
+Additionally, PyGlaucoMetric[5] has been integrated to enable glaucoma classification based on visual field patterns.
 
 These functions are implemented in Python, and their functionalities are demonstrated across four primary categories:
 -     Data Presentation
@@ -24,9 +24,9 @@ If you found this package impactful for your research, please cite the following
 - Mohammad Eslami, Saber Kazeminasab, Vishal Sharma, Yangjiani Li, Mojtaba Fazli, Mengyu Wang, Nazlee Zebardast, Tobias Elze; PyVisualFields: A Python Package for Visual Field Analysis. Trans. Vis. Sci. Tech. 2023;12(2):6. https://doi.org/10.1167/tvst.12.2.6.
 
 and of course the corresponding sub-package:
-- vfprogression (by Elze et al. [1])
-- visualFields (by Marin-Granch et al. [2])
-- pyGlaucoMetrics (by Moradi et al. [3])
+- vfprogression (by Elze et al. [3])
+- visualFields (by Marin-Granch et al. [4])
+- PyGlaucoMetrics (by Moradi et al. [5])
 
 ## Installation: 
 
@@ -41,7 +41,7 @@ The list and description of all functions are available at [All_Functions](#list
 - Progression Analysis [demo_4_ProgressionAnalysis.ipynb](demo_4_ProgressionAnalysis.ipynb)
 - Glaucoma Detection [demo5_PyGlaucoMetrics.ipynb](demo5_PyGlaucoMetrics.ipynb) </br>
 
-__Notice:__ PyGlaucoMetric is also available as a seperatre PyPI package and GitHub repository (built upon PyVisualFields), which includes a graphical user interface (GUI) for progression analysis and glaucoma detection. Indeed PyVisualFields is designed as a developer-facing package library, while pyGlaucoMetric serves as an accessible GUI application implementing selected visual field analysis components.
+__Notice:__ PyGlaucoMetric is also available as a seperatre PyPI package and GitHub repository (built upon PyVisualFields), which includes a graphical user interface (GUI) for progression analysis and glaucoma detection. Indeed PyVisualFields is designed as a developer-facing package library, while PyGlaucoMetric serves as an accessible GUI application implementing selected visual field analysis components.
 https://github.com/Mousamoradi/PyGlaucoMetrics
 
 
@@ -84,6 +84,139 @@ Functions based on _vfprogression_ package accept 24-2 or 30-2 visual field meas
 | `utils.vf_blocks()` | Identify available VF blocks (`s`, `td`, `pd`, `tdp`, `pdp`) | PyVisualFieldsV2 |
 | `utils.missing_blocks()` | Identify missing VF blocks | PyVisualFieldsV2 |
 | `utils.compute_missing_blocks()` | Compute missing blocks using current normative setting NV | PyVisualFieldsV2 |
+</details>
+
+
+<details>
+<summary><b>Data Structures and Canonicalization </b></summary>
+## Data Structures and Canonicalization
+
+## Data Canonicalization
+
+PyVisualFields provides two helper functions:
+
+```python
+canonicalize_vf_df()
+canonicalize_vf_row()
+```
+
+to standardize visual field data into a unified format compatible with all package functions.
+
+The canonicalization functions standardize recognized visual field and metadata columns while preserving all other columns unchanged, allowing user-specific variables and auxiliary information to be retained throughout the analysis pipeline.
+
+### Supported Pointwise Data
+
+The following pointwise aliases are automatically recognized:
+
+```python
+POINT_ALIASES = {
+    "sens": ["l", "s", "sen", "sens", "sensitivity"],
+    "td": ["td"],
+    "pd": ["pd"],
+    "tdp": ["tdp"],
+    "pdp": ["pdp"],
+}
+```
+
+The parser automatically handles:
+
+* Different prefixes (e.g., `s`, `sen`, `sens`, `sensitivity`)
+* Upper/lower-case variations (e.g., `TD1`, `td1`)
+* Common separators (e.g., `td1`, `td_1`, `td-1`, `td 1`)
+
+and converts them into the canonical format:
+
+```text
+l1-l54      Raw sensitivity values
+td1-td54    Total Deviation values
+tdp1-tdp54  Total Deviation probability values
+pd1-pd54    Pattern Deviation values
+pdp1-pdp54  Pattern Deviation probability values
+```
+
+Both 52-point and 54-point visual fields are supported automatically. For 52-point fields, the two blind-spot locations are inserted automatically.
+
+### Supported Metadata
+
+Common metadata fields are also standardized when possible, including:
+
+```text
+patientid
+eyeid
+date
+age
+yearsfollowed
+md
+mdprob
+psd
+psdprob
+ght
+vfi
+vfiprob
+msens
+msensprob
+ssens
+ssensprob
+tmd
+tmdprob
+tsd
+tsdprob
+pmd
+pmdprob
+gh
+ghprob
+fpr
+fnr
+fl
+duration
+```
+
+For example:
+
+```text
+patient_id  -> patientid
+subjectid   -> patientid
+mrn         -> patientid
+
+eye         -> eyeid
+laterality  -> eyeid
+
+examdate    -> date
+testdate    -> date
+
+mdp         -> mdprob
+psdp        -> psdprob
+vfip        -> vfiprob
+```
+
+After canonicalization, all PyVisualFields functions can assume a consistent schema regardless of the original data source.
+
+PyVisualFields supports both device-reported and computed global indices.
+
+| Variable           | Description                                                                                                          |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **s** / **l1-l54** | Raw visual field sensitivities (dB) at each test location.                                                           |
+| **msens**          | Mean sensitivity (MS) across all visual field locations.                                                                  |
+| **ssens**          | Standard deviation of sensitivity values across locations.                                                           |
+| **td1-td54**       | Total Deviation values (measured sensitivity − age-expected normal sensitivity).                                     |
+| **tdp1-tdp54**       |    Total Deviation probability values; statistical significance of each TD location.                  |
+| **pdp1-pdp54**       |       Pattern Deviation probability values; statistical significance of each PD location.          |
+| **MD**            | The Humphrey MD index.                     |
+| **tmd**            | Total Mean Deviation; weighted mean of Total Deviation values. Similar to the Humphrey MD index.                     |
+| **tsd**            | Total Standard Deviation; weighted standard deviation of Total Deviation values.                                     |
+| **pd1-pd54**       | Pattern Deviation values (Total Deviation corrected for generalized depression).                                     |
+| **pmd**            | Pattern Mean Deviation; weighted mean of Pattern Deviation values.                                                   |
+| **psd**            | Pattern Standard Deviation; weighted standard deviation of Pattern Deviation values.                                 |
+| **ght**            | Glaucoma Hemifield Test result (Within Normal Limits, Borderline, Outside Normal Limits, etc.).                      |
+| **gh**             | General Height (generalized sensitivity adjustment used in Pattern Deviation calculations).                          |
+| **vfi**            | Visual Field Index (%), where 100 indicates a normal visual field and lower values indicate greater functional loss. |
+| **fpr**            | False Positive Rate (%).                                                                                             |
+| **fnr**            | False Negative Rate (%).                                                                                             |
+| **fl**             | Fixation Loss Rate (%).                                                                                              |
+| **duration**       | Test duration.                                                                                                       |
+
+
+
 </details>
 
 
