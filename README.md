@@ -20,7 +20,7 @@ For each category, we provide comprehensive Jupyter notebooks containing practic
 
 ## Citation
 If you found this package impactful for your research, please cite the following article: 
-- PyVisualFields v2
+- PyVisualFields v2 
 - Mohammad Eslami, Saber Kazeminasab, Vishal Sharma, Yangjiani Li, Mojtaba Fazli, Mengyu Wang, Nazlee Zebardast, Tobias Elze; PyVisualFields: A Python Package for Visual Field Analysis. Trans. Vis. Sci. Tech. 2023;12(2):6. https://doi.org/10.1167/tvst.12.2.6.
 
 and of course the corresponding sub-package:
@@ -46,7 +46,7 @@ https://github.com/Mousamoradi/PyGlaucoMetrics
 
 
 ## references:
-[1] PyVisualFields v2
+[1] PyVisualFields v2 </br>
 [2] Mohammad Eslami, Saber Kazeminasab, Vishal Sharma, Yangjiani Li, Mojtaba Fazli, Mengyu Wang, Nazlee Zebardast, Tobias Elze; PyVisualFields: A Python Package for Visual Field Analysis. Trans. Vis. Sci. Tech. 2023;12(2):6. https://doi.org/10.1167/tvst.12.2.6.
 [3] https://cran.r-project.org/web/packages/vfprogression/index.html </br>
 [4] https://cran.r-project.org/web/packages/visualFields/index.html </br>
