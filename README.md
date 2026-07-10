@@ -28,6 +28,10 @@ and of course the corresponding sub-package:
 - visualFields (by Marin-Granch et al. [4])
 - PyGlaucoMetrics (by Moradi et al. [5])
 
+
+
+
+
 ## Installation: 
 
 > pip install PyVisualFields
@@ -316,7 +320,10 @@ PyVisualFields supports both device-reported and computed global indices.
 </details>
 
 
+## Disclaimer
+**Liability Disclaimer**: This software is provided for research and educational purposes only. The software is supplied "as is," without warranty of any kind, and the authors assume no responsibility for any errors, data loss, or damages arising from its use. Users are responsible for validating results. 
 
+**Clinical Disclaimer**: This software is intended for research and educational use only. It is not a medical device and must not be used as the sole basis for clinical diagnosis or treatment decisions. Users are responsible for validating results. 
 
 ## Snapshots
 
